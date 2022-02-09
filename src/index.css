@@ -18,7 +18,7 @@ body {
 }
 
 .Intro {
-  padding: 10px 10px 150px;
+  padding: 10px 20px 40px;
 }
 
 .Logo {
@@ -36,8 +36,12 @@ body {
   width: 240px;
 }
 
-  .Column.wide {
+  .Column.first {
     width: 360px
+  }
+
+  .Column.first .Cell {
+    padding-left: 20px;
   }
 
   .Column.lighter{

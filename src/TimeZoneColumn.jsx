@@ -18,7 +18,7 @@ export function TimeZoneColumn({
   };
 
   return html`
-    <div class="Column wide">
+    <div class="Column first">
       <div class="Cell ControlCell">
         <button onClick=${addZoneRow}>Add Time Zone</button>
         <button onClick=${addDateColumn}>Add Date</button>

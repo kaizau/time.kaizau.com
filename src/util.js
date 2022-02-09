@@ -1,6 +1,6 @@
 import { add, set } from "date-fns";
 
-export const DATETIME_FULL = "MMM d, y HH:mm";
+export const DATETIME_FULL = "E, MMM d, HH:mm";
 
 export function nextHour() {
   return add(

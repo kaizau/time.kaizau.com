@@ -1,5 +1,6 @@
 import { useEffect, useState } from "preact/hooks";
 import { html } from "htm/preact";
+import { add } from "date-fns";
 import { nextHour, serialize, deserialize } from "./util";
 import { TimeZoneColumn } from "./TimeZoneColumn.jsx";
 import { DateColumn } from "./DateColumn.jsx";
@@ -15,13 +16,23 @@ export function App() {
   // Initial values from query string
   useEffect(() => {
     const parsed = deserialize(window.location.search);
-    if (!parsed.zones.length) {
-      setZones([localZone]);
+    let zones = parsed.zones.length
+      ? parsed.zones
+      : [
+          "America/Los_Angeles",
+          "America/New_York",
+          "Europe/London",
+          "Asia/Shanghai",
+        ];
+
+    if (!zones.includes(localZone)) {
+      setZones([localZone, ...zones]);
     } else {
-      setZones(parsed.zones);
+      setZones(zones);
     }
+
     if (!parsed.dates.length) {
-      setDates([nextHour()]);
+      setDates([nextHour(), add(nextHour(), { days: 1 })]);
     } else {
       setDates(parsed.dates);
     }
