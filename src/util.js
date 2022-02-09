@@ -31,7 +31,8 @@ export function deserialize(qs) {
   const dates = (params.get("d") || "")
     .split("!")
     .map((d) => parseInt(d) * 1000)
-    .filter((d) => !!d);
+    .filter((d) => !!d)
+    .map((d) => new Date(d));
 
   const zones = (params.get("z") || "")
     .replace(/\./g, "/")

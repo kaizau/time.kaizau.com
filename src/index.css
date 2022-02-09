@@ -36,26 +36,55 @@ body {
   width: 240px;
 }
 
-.Column.wide {
-  width: 360px
-}
+  .Column.wide {
+    width: 360px
+  }
 
-.DateColumn {
-  color: #999;
-}
+  .Column.lighter{
+    color: #999;
+  }
 
 .Cell {
   height: 60px;
   padding: 10px;
 }
 
-.DateColumn:hover,
-.Cell.isLocal {
-  background: #eee;
-  color: #444;
+  .Column.lighter:hover,
+  .Cell.isLocal {
+    background: #eee;
+    color: #444;
+  }
+
+  .Cell.hasClose {
+    padding-right: 40px;
+    position: relative;
+  }
+
+.CloseButton {
+  background: transparent;
+  border: 0;
+  color: #999;
+  display: none;
+  font-size: 30px;
+  height: 30px;
+  line-height: 1;
+  width: 30px;
 }
 
-.Cell h2 {
+  .Cell:hover .CloseButton {
+    display: initial;
+    position: absolute;
+    right: 10px;
+    top: 10px;
+  }
+
+  .CloseButton:hover {
+    color: #444;
+    cursor: pointer;
+  }
+
+.Cell .heading {
+  font-size: 32px;
   margin: 0;
   padding: 0;
 }
@@ -72,20 +101,6 @@ body {
   padding: 9px;
 }
 
-.AddButton {
-  background: transparent;
-  border: 0;
-  border-radius: 0;
-  color: #999;
-  font-size: 40px;
-  line-height: 1;
-  height: 40px;
-  margin: 0;
-  padding: 0;
-  width: 40px;
-}
-
-.AddButton:hover {
-  color: #000;
-  cursor: pointer;
+.ControlCell button {
+  margin: 10px 10px 0 0;
 }

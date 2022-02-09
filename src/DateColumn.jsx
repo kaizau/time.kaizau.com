@@ -15,13 +15,23 @@ export function DateColumn({ index, localZone, dates, zones, setDates }) {
     setDates([...dates]);
   };
 
+  const removeDate = () => {
+    dates.splice(index, 1);
+    setDates([...dates]);
+  };
+
   return html`
-    <div class="Column DateColumn">
-      <div class="Cell"><h2>${index + 1}</h2></div>
+    <div class="Column lighter">
+      <div class="Cell hasClose">
+        <h2 class="heading">${index + 1}</h2>
+        <button class="CloseButton" onClick=${removeDate}>×</button>
+      </div>
+
       ${zones.map((zone, index) => {
+        const isLocal = localZone === zone ? " isLocal" : "";
         if (index === 0) {
           return html`
-            <div class="Cell${localZone === zone ? " isLocal" : ""}">
+            <div class="Cell${isLocal}">
               <${DatePicker}
                 showTimeSelect
                 popperPlacement="top"
@@ -34,7 +44,7 @@ export function DateColumn({ index, localZone, dates, zones, setDates }) {
           `;
         } else {
           return html`
-            <div class="Cell${localZone === zone ? " isLocal" : ""}">
+            <div class="Cell${isLocal}">
               <div class="padded">
                 ${formatInTimeZone(date, zone, DATETIME_FULL)}
               </div>
@@ -42,7 +52,6 @@ export function DateColumn({ index, localZone, dates, zones, setDates }) {
           `;
         }
       })}
-      <div class="Cell"></div>
     </div>
   `;
 }

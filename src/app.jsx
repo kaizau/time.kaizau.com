@@ -33,21 +33,11 @@ export function App() {
     window.history.replaceState({}, "", qs);
   }, [dates, zones]);
 
-  const addDateColumn = () => setDates([...dates, nextHour()]);
-
   return html`
     <${TimeZoneColumn} ...${props} />
 
-    ${dates.map(
-      (_, index) =>
-        html`<${DateColumn} index=${index} key=${index} ...${props} />`
-    )}
-
-    <div class="Column">
-      <div class="Cell"></div>
-      <div class="Cell">
-        <button class="AddButton" onClick=${addDateColumn}>+</button>
-      </div>
-    </div>
+    ${dates.map((date, index) => {
+      return html`<${DateColumn} index=${index} ...${props} />`;
+    })}
   `;
 }
