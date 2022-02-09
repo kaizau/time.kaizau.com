@@ -21,7 +21,7 @@ export function TimeZoneColumn({ localZone, zones, setZones }) {
       })}
 
       <div class="Cell">
-        <button onClick=${addZoneRow}>+</button>
+        <button class="AddButton" onClick=${addZoneRow}>+</button>
       </div>
     </div>
   `;

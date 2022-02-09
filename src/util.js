@@ -12,3 +12,31 @@ export function nextHour() {
     { hours: 1 }
   );
 }
+
+export function serialize(dates, zones) {
+  const dateString = dates.map((d) => parseInt(d.valueOf() / 1000)).join("!");
+  const zoneString = zones.join("!").replace(/\//g, ".");
+
+  const params = new URLSearchParams({
+    z: zoneString,
+    d: dateString,
+  });
+
+  return "?" + params.toString();
+}
+
+export function deserialize(qs) {
+  const params = new URLSearchParams(qs);
+
+  const dates = (params.get("d") || "")
+    .split("!")
+    .map((d) => parseInt(d) * 1000)
+    .filter((d) => !!d);
+
+  const zones = (params.get("z") || "")
+    .replace(/\./g, "/")
+    .split("!")
+    .filter((d) => !!d);
+
+  return { dates, zones };
+}

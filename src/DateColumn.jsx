@@ -16,8 +16,8 @@ export function DateColumn({ index, localZone, dates, zones, setDates }) {
   };
 
   return html`
-    <div class="Column">
-      <div class="Cell">${index + 1}</div>
+    <div class="Column DateColumn">
+      <div class="Cell"><h2>${index + 1}</h2></div>
       ${zones.map((zone, index) => {
         if (index === 0) {
           return html`
@@ -35,7 +35,9 @@ export function DateColumn({ index, localZone, dates, zones, setDates }) {
         } else {
           return html`
             <div class="Cell${localZone === zone ? " isLocal" : ""}">
-              ${formatInTimeZone(date, zone, DATETIME_FULL)}
+              <div class="padded">
+                ${formatInTimeZone(date, zone, DATETIME_FULL)}
+              </div>
             </div>
           `;
         }

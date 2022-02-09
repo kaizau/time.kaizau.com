@@ -6,6 +6,7 @@ body {
   margin: 0;
   background: #fafafa;
   font-family: 'Helvetica Neue', arial, sans-serif;
+  font-size: 16px;
   font-weight: 400;
   color: #444;
   -webkit-font-smoothing: antialiased;
@@ -20,15 +21,18 @@ body {
   padding: 10px 10px 150px;
 }
 
+.Logo {
+  font-size: 60px;
+}
+
 #App {
   display: flex;
-  font-size: 1.5em;
 }
 
 .Column {
-  flex-shrink: 0;
   display: flex;
   flex-direction: column;
+  flex-shrink: 0;
   width: 240px;
 }
 
@@ -36,14 +40,52 @@ body {
   width: 360px
 }
 
-.Cell {
+.DateColumn {
   color: #999;
+}
+
+.Cell {
   height: 60px;
   padding: 10px;
 }
 
+.DateColumn:hover,
 .Cell.isLocal {
   background: #eee;
   color: #444;
 }
 
+.Cell h2 {
+  margin: 0;
+  padding: 0;
+}
+
+.Cell input {
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 16px;
+  padding: 8px;
+  width: 100%;
+}
+
+.Cell .padded {
+  padding: 9px;
+}
+
+.AddButton {
+  background: transparent;
+  border: 0;
+  border-radius: 0;
+  color: #999;
+  font-size: 40px;
+  line-height: 1;
+  height: 40px;
+  margin: 0;
+  padding: 0;
+  width: 40px;
+}
+
+.AddButton:hover {
+  color: #000;
+  cursor: pointer;
+}
