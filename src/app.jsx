@@ -1,78 +1,43 @@
 import { useState } from "preact/hooks";
 import { html } from "htm/preact";
-import { add, set } from "date-fns";
-import { formatInTimeZone } from "date-fns-tz";
-
-import DatePicker from "react-datepicker";
-import "react-datepicker/dist/react-datepicker.css";
+import { nextHour } from "./util";
+import { TimeZoneColumn } from "./TimeZoneColumn";
+import { DateColumn } from "./DateColumn";
 
 export function App() {
-  const [local] = useState(nextHour(new Date()));
-  const [zones] = useState([
-    Intl.DateTimeFormat().resolvedOptions().timeZone,
+  const [localZone, setLocalZone] = useState(
+    Intl.DateTimeFormat().resolvedOptions().timeZone
+  );
+  const [zones, setZones] = useState([
+    localZone,
     "America/Chicago",
+    "America/New_York",
   ]);
-  const [dates] = useState([local]);
-  const props = { local, zones, dates };
+  const [dates, setDates] = useState([nextHour()]);
+  const props = { localZone, zones, dates };
+
+  const addDateColumn = () => setDates([...dates, nextHour()]);
+  const addZoneRow = () => {
+    setZones([...zones, zones[zones.length - 1]]);
+  };
 
   return html`
     <${TimeZoneColumn} ...${props} />
-    ${dates.map((date) => html` <${DateColumn} date=${date} ...${props} /> `)}
-    <${DateInput} ...${props} />
-  `;
-}
 
-function TimeZoneColumn({ zones }) {
-  return html`
+    ${dates.map(
+      (date, index) =>
+        html`<${DateColumn}
+          date=${date}
+          index=${index}
+          key=${index}
+          ...${props}
+        />`
+    )}
     <div class="Column">
-      ${zones.map((zone) => html` <div class="Cell">${zone}</div> `)}
-    </div>
-    <!-- <div class="Cell"> -->
-    <!--   <input name='addTimeZone' placeholder='Add Time Zone' /> -->
-    <!-- </div> -->
-  `;
-}
-
-function DateColumn({ zones, date }) {
-  console.log(date);
-  return html`
-    <div class="Column">
-      ${zones.map(
-        (zone) => html`
-          <div class="Cell">
-            ${formatInTimeZone(date, zone, "MMM d, y HH:mm")}
-          </div>
-        `
-      )}
-    </div>
-  `;
-}
-
-function DateInput({ local }) {
-  const [date, setDate] = useState(local);
-
-  return html`
-    <div class="Column">
+      <div class="Cell"></div>
       <div class="Cell">
-        <${DatePicker}
-          showTimeSelect
-          dateFormat="MMM d, y HH:mm"
-          timeFormat="HH:mm"
-          selected=${date}
-          onChange=${(d) => setDate(d)}
-        />
+        <button onClick=${addDateColumn}>+</button>
       </div>
     </div>
   `;
-}
-
-function nextHour(date) {
-  return add(
-    set(date, {
-      minutes: 0,
-      seconds: 0,
-      milliseconds: 0,
-    }),
-    { hours: 1 }
-  );
 }
