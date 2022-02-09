@@ -1,8 +1,8 @@
 import { useEffect, useState } from "preact/hooks";
 import { html } from "htm/preact";
 import { nextHour, serialize, deserialize } from "./util";
-import { TimeZoneColumn } from "./TimeZoneColumn";
-import { DateColumn } from "./DateColumn";
+import { TimeZoneColumn } from "./TimeZoneColumn.jsx";
+import { DateColumn } from "./DateColumn.jsx";
 
 export function App() {
   const [localZone, setLocalZone] = useState(
