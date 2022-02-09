@@ -10,3 +10,4 @@ Thumbs.db
 
 # Project folders
 node_modules/
+dist/
