@@ -1,14 +1,19 @@
 import { useState } from "preact/hooks";
 import { html } from "htm/preact";
 import { formatInTimeZone } from "date-fns-tz";
-
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 
 import { DATETIME_FULL } from "./util";
 
-export function DateColumn({ date: initialDate, index, localZone, zones }) {
-  const [date, setDate] = useState(initialDate);
+export function DateColumn({ index, localZone, dates, zones, setDates }) {
+  const date = dates[index];
+
+  const setDate = (d) => {
+    if (!d) return;
+    dates[index] = d;
+    setDates([...dates]);
+  };
 
   return html`
     <div class="Column">

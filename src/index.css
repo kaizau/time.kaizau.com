@@ -32,6 +32,10 @@ body {
   width: 240px;
 }
 
+.Column.wide {
+  width: 360px
+}
+
 .Cell {
   color: #999;
   height: 60px;
@@ -42,3 +46,4 @@ body {
   background: #eee;
   color: #444;
 }
+

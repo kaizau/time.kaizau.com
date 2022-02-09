@@ -1,4 +1,4 @@
-import { useState } from "preact/hooks";
+import { useEffect, useState } from "preact/hooks";
 import { html } from "htm/preact";
 import { nextHour } from "./util";
 import { TimeZoneColumn } from "./TimeZoneColumn";
@@ -14,24 +14,20 @@ export function App() {
     "America/New_York",
   ]);
   const [dates, setDates] = useState([nextHour()]);
-  const props = { localZone, zones, dates };
+  const props = { localZone, zones, setZones, dates, setDates };
+
+  useEffect(() => {
+    console.log(dates, zones);
+  }, [dates, zones]);
 
   const addDateColumn = () => setDates([...dates, nextHour()]);
-  const addZoneRow = () => {
-    setZones([...zones, zones[zones.length - 1]]);
-  };
 
   return html`
     <${TimeZoneColumn} ...${props} />
 
     ${dates.map(
-      (date, index) =>
-        html`<${DateColumn}
-          date=${date}
-          index=${index}
-          key=${index}
-          ...${props}
-        />`
+      (_, index) =>
+        html`<${DateColumn} index=${index} key=${index} ...${props} />`
     )}
     <div class="Column">
       <div class="Cell"></div>
