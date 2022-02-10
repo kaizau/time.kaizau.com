@@ -18,10 +18,10 @@ export function TimeZoneColumn({
   };
 
   return html`
-    <div class="Column first">
+    <div class="Column ZoneColumn">
       <div class="Cell ControlCell">
-        <button onClick=${addZoneRow}>Add Time Zone</button>
-        <button onClick=${addDateColumn}>Add Date</button>
+        <button onClick=${addZoneRow}>Add Time Zone ↓</button>
+        <button onClick=${addDateColumn}>Add Date →</button>
       </div>
 
       ${zones.map((zone, index) => {
@@ -35,6 +35,16 @@ export function TimeZoneColumn({
     </div>
   `;
 }
+
+const timeZoneSelectStyles = {
+  container(provided) {
+    return {
+      ...provided,
+      minWidth: 0,
+      flexBasis: "100%",
+    };
+  },
+};
 
 function TimeZoneCell({ isLocal, zones, index, setZones }) {
   const zone = zones[index];
@@ -51,8 +61,12 @@ function TimeZoneCell({ isLocal, zones, index, setZones }) {
   };
 
   return html`
-    <div class="Cell hasClose${isLocal ? " isLocal" : ""}">
-      <${TimezoneSelect} value=${zone} onChange=${setZone} />
+    <div class="Cell${isLocal ? " isLocal" : ""}">
+      <${TimezoneSelect}
+        value=${zone}
+        onChange=${setZone}
+        styles=${timeZoneSelectStyles}
+      />
       <button class="CloseButton" onClick=${removeZone}>×</button>
     </div>
   `;

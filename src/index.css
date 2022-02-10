@@ -18,6 +18,8 @@ body {
 }
 
 .Intro {
+  line-height: 1.5;
+  max-width: 600px;
   padding: 10px 20px 40px;
 }
 
@@ -36,50 +38,60 @@ body {
   width: 240px;
 }
 
-  .Column.first {
-    width: 360px
-  }
+.ZoneColumn {
+  width: 360px
+}
 
-  .Column.first .Cell {
-    padding-left: 20px;
-  }
+.ZoneColumn .Cell {
+  padding-left: 20px;
+}
 
-  .Column.lighter{
-    color: #999;
-  }
+.DateColumn:hover {
+  background: #eee;
+}
 
 .Cell {
+  display: flex;
   height: 60px;
+  align-items: center;
+  justify-content: space-between;
   padding: 10px;
 }
 
-  .Column.lighter:hover,
   .Cell.isLocal {
     background: #eee;
-    color: #444;
   }
 
-  .Cell.hasClose {
-    padding-right: 40px;
-    position: relative;
+  .Cell.night {
+    opacity: .5;
+  }
+
+  .Cell.day:after,
+  .Cell.night:after {
+    display: inline-block;
+    padding: 0 5px;
+  }
+
+  .Cell.day:after {
+    content: '☀️';
+  }
+
+  .Cell.night:after {
+    content: '💤';
   }
 
 .CloseButton {
   background: transparent;
   border: 0;
-  color: #999;
-  display: none;
-  font-size: 30px;
-  height: 30px;
-  line-height: 1;
-  width: 30px;
+  color: #aaa;
+  display: inline-block;
+  font-size: 24px;
+  padding: 0 5px 5px;
+  visibility: hidden;
 }
 
   .Cell:hover .CloseButton {
-    display: initial;
-    position: absolute;
-    right: 10px;
-    top: 10px;
+    visibility: visible;
   }
 
   .CloseButton:hover {

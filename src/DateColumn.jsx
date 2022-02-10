@@ -21,17 +21,21 @@ export function DateColumn({ index, localZone, dates, zones, setDates }) {
   };
 
   return html`
-    <div class="Column lighter">
-      <div class="Cell hasClose">
+    <div class="Column DateColumn">
+      <div class="Cell">
         <h2 class="heading">${index + 1}</h2>
         <button class="CloseButton" onClick=${removeDate}>×</button>
       </div>
 
       ${zones.map((zone, index) => {
         const isLocal = localZone === zone ? " isLocal" : "";
+
+        const localTime = parseInt(formatInTimeZone(date, zone, "H"), 10);
+        const timeOfDay = 8 <= localTime && localTime <= 20 ? "day" : "night";
+
         if (index === 0) {
           return html`
-            <div class="Cell${isLocal}">
+            <div class="Cell ${timeOfDay}${isLocal}">
               <${DatePicker}
                 showTimeSelect
                 popperPlacement="top"
@@ -44,7 +48,7 @@ export function DateColumn({ index, localZone, dates, zones, setDates }) {
           `;
         } else {
           return html`
-            <div class="Cell${isLocal}">
+            <div class="Cell ${timeOfDay}${isLocal}">
               <div class="padded">
                 ${formatInTimeZone(date, zone, DATETIME_FULL)}
               </div>
