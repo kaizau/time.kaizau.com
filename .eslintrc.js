@@ -10,6 +10,7 @@ module.exports = {
   },
   rules: {
     "no-console": "error",
+    "no-else-return": "off",
   },
 
   // Required to fix eslint-config-preact error

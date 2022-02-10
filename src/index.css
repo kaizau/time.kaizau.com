@@ -93,7 +93,7 @@ body {
   visibility: hidden;
 }
 
-.Cell:hover .CloseButton {
+.DateColumn:hover .CloseButton {
   visibility: visible;
 }
 
@@ -123,3 +123,17 @@ body {
 .ControlCell button {
   margin: 10px 10px 0 0;
 }
+
+.DownloadCell {
+  justify-content: flex-end;
+}
+
+.DateColumn .DownloadCell button {
+  display: none;
+  margin: 0 5px;
+}
+
+.DateColumn:hover .DownloadCell button {
+  display: inline-block;
+}
+

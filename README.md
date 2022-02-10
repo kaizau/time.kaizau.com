@@ -2,8 +2,6 @@
 
 ## TODO
 
-- Eslint
-- Download an iCal
 - Configurable daylight hours
 - Scrollbar time picker
 - 1-click sort

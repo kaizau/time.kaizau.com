@@ -1,4 +1,3 @@
-import { useState } from "preact/hooks";
 import { html } from "htm/preact";
 import TimezoneSelect from "react-timezone-select";
 import { nextHour } from "./util";

@@ -11,6 +11,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "calendar-link": "^2.1.1",
     "date-fns": "^2.28.0",
     "date-fns-tz": "^1.2.2",
     "htm": "^3.1.0",

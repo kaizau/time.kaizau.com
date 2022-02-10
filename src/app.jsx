@@ -6,15 +6,13 @@ import { TimeZoneColumn } from "./TimeZoneColumn.jsx";
 import { DateColumn } from "./DateColumn.jsx";
 
 export function App() {
-  const [localZone] = useState(
-    Intl.DateTimeFormat().resolvedOptions().timeZone
-  );
   const [zones, setZones] = useState([]);
   const [dates, setDates] = useState([]);
   const props = { zones, setZones, dates, setDates };
 
   // Initial values from query string
   useEffect(() => {
+    const localZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
     const parsed = deserialize(window.location.search);
     let zones = parsed.zones.length
       ? parsed.zones

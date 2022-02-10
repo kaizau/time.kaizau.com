@@ -1,6 +1,6 @@
-import { useState } from "preact/hooks";
 import { html } from "htm/preact";
 import { formatInTimeZone, zonedTimeToUtc } from "date-fns-tz";
+import { google, ics } from "calendar-link";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 
@@ -18,6 +18,24 @@ export function DateColumn({ index, dates, zones, setDates }) {
   const removeDate = () => {
     dates.splice(index, 1);
     setDates([...dates]);
+  };
+
+  const calendarLink = (type) => {
+    const event = {
+      title: "Meeting",
+      start: zonedTimeToUtc(dates[0], zones[0]),
+      duration: [1, "hour"],
+    };
+
+    if (type === "google") {
+      window.open(google(event), "_blank");
+    } else if (type === "ical") {
+      const a = document.createElement("a");
+      a.href = ics(event);
+      a.target = "_blank";
+      a.download = "event.ics";
+      a.click();
+    }
   };
 
   return html`
@@ -55,6 +73,10 @@ export function DateColumn({ index, dates, zones, setDates }) {
           `;
         }
       })}
+      <div class="Cell DownloadCell">
+        <button onClick=${() => calendarLink("google")}>Google</button>
+        <button onClick=${() => calendarLink("ical")}>iCal</button>
+      </div>
     </div>
   `;
 }
