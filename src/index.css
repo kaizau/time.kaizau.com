@@ -17,6 +17,10 @@ body {
   box-sizing: border-box;
 }
 
+button:hover {
+  cursor: pointer;
+}
+
 .Intro {
   line-height: 1.5;
   max-width: 700px;
@@ -99,7 +103,6 @@ body {
 
 .CloseButton:hover {
   color: #444;
-  cursor: pointer;
 }
 
 .Cell .heading {
