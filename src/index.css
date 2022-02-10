@@ -5,7 +5,7 @@ body {
   padding: 0;
   margin: 0;
   background: #fafafa;
-  font-family: 'Helvetica Neue', arial, sans-serif;
+  font-family: "Helvetica Neue", arial, sans-serif;
   font-size: 16px;
   font-weight: 400;
   color: #444;
@@ -39,7 +39,7 @@ body {
 }
 
 .ZoneColumn {
-  width: 360px
+  width: 360px;
 }
 
 .ZoneColumn .Cell {
@@ -58,28 +58,28 @@ body {
   padding: 10px;
 }
 
-  .Cell:nth-child(2) {
-    background: #eee;
-  }
+.Cell:nth-child(2) {
+  background: #eee;
+}
 
-  .Cell.night:after,
-  .Cell.night .text {
-    opacity: .5;
-  }
+.Cell.night:after,
+.Cell.night .text {
+  opacity: 0.5;
+}
 
-  .Cell.day:after,
-  .Cell.night:after {
-    display: inline-block;
-    margin-left: 10px;
-  }
+.Cell.day:after,
+.Cell.night:after {
+  display: inline-block;
+  margin-left: 10px;
+}
 
-  .Cell.day:after {
-    content: '☀️';
-  }
+.Cell.day:after {
+  content: "☀️";
+}
 
-  .Cell.night:after {
-    content: '💤';
-  }
+.Cell.night:after {
+  content: "💤";
+}
 
 .CloseButton,
 .CloseButtonSpacer {
@@ -93,14 +93,14 @@ body {
   visibility: hidden;
 }
 
-  .Cell:hover .CloseButton {
-    visibility: visible;
-  }
+.Cell:hover .CloseButton {
+  visibility: visible;
+}
 
-  .CloseButton:hover {
-    color: #444;
-    cursor: pointer;
-  }
+.CloseButton:hover {
+  color: #444;
+  cursor: pointer;
+}
 
 .Cell .heading {
   font-size: 32px;

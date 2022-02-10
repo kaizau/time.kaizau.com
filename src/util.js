@@ -14,7 +14,9 @@ export function nextHour() {
 }
 
 export function serialize(dates, zones) {
-  const dateString = dates.map((d) => parseInt(d.valueOf() / 1000)).join("!");
+  const dateString = dates
+    .map((d) => parseInt(d.valueOf() / 1000, 10))
+    .join("!");
   const zoneString = zones.join("!").replace(/\//g, ".");
 
   const params = new URLSearchParams({
@@ -22,7 +24,7 @@ export function serialize(dates, zones) {
     d: dateString,
   });
 
-  return "?" + params.toString();
+  return `?${params.toString()}`;
 }
 
 export function deserialize(qs) {
@@ -30,7 +32,7 @@ export function deserialize(qs) {
 
   const dates = (params.get("d") || "")
     .split("!")
-    .map((d) => parseInt(d) * 1000)
+    .map((d) => parseInt(d, 10) * 1000)
     .filter((d) => !!d)
     .map((d) => new Date(d));
 
