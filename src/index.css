@@ -19,8 +19,8 @@ body {
 
 .Intro {
   line-height: 1.5;
-  max-width: 600px;
-  padding: 10px 20px 40px;
+  max-width: 700px;
+  padding: 10px 20px 20px;
 }
 
 .Logo {
@@ -58,18 +58,19 @@ body {
   padding: 10px;
 }
 
-  .Cell.isLocal {
+  .Cell:nth-child(2) {
     background: #eee;
   }
 
-  .Cell.night {
+  .Cell.night:after,
+  .Cell.night .text {
     opacity: .5;
   }
 
   .Cell.day:after,
   .Cell.night:after {
     display: inline-block;
-    padding: 0 5px;
+    margin-left: 10px;
   }
 
   .Cell.day:after {
@@ -80,13 +81,15 @@ body {
     content: '💤';
   }
 
-.CloseButton {
+.CloseButton,
+.CloseButtonSpacer {
   background: transparent;
   border: 0;
   color: #aaa;
   display: inline-block;
   font-size: 24px;
-  padding: 0 5px 5px;
+  margin-left: 5px;
+  padding: 0 5px;
   visibility: hidden;
 }
 
@@ -113,7 +116,7 @@ body {
   width: 100%;
 }
 
-.Cell .padded {
+.Cell .text {
   padding: 9px;
 }
 

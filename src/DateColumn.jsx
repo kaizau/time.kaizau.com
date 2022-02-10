@@ -1,17 +1,17 @@
 import { useState } from "preact/hooks";
 import { html } from "htm/preact";
-import { formatInTimeZone } from "date-fns-tz";
+import { formatInTimeZone, zonedTimeToUtc } from "date-fns-tz";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 
 import { DATETIME_FULL } from "./util";
 
-export function DateColumn({ index, localZone, dates, zones, setDates }) {
+export function DateColumn({ index, dates, zones, setDates }) {
   const date = dates[index];
 
-  const setDate = (d) => {
-    if (!d) return;
-    dates[index] = d;
+  const setDate = (newDate) => {
+    if (!newDate) return;
+    dates[index] = newDate;
     setDates([...dates]);
   };
 
@@ -28,28 +28,27 @@ export function DateColumn({ index, localZone, dates, zones, setDates }) {
       </div>
 
       ${zones.map((zone, index) => {
-        const isLocal = localZone === zone ? " isLocal" : "";
-
         const localTime = parseInt(formatInTimeZone(date, zone, "H"), 10);
         const timeOfDay = 8 <= localTime && localTime <= 20 ? "day" : "night";
 
         if (index === 0) {
+          const utcDate = zonedTimeToUtc(date, zone);
           return html`
-            <div class="Cell ${timeOfDay}${isLocal}">
+            <div class="Cell ${timeOfDay}">
               <${DatePicker}
                 showTimeSelect
                 popperPlacement="top"
                 dateFormat=${DATETIME_FULL}
                 timeFormat="HH:mm"
-                selected=${date}
+                selected=${utcDate}
                 onChange=${(d) => setDate(d)}
               />
             </div>
           `;
         } else {
           return html`
-            <div class="Cell ${timeOfDay}${isLocal}">
-              <div class="padded">
+            <div class="Cell ${timeOfDay}">
+              <div class="text">
                 ${formatInTimeZone(date, zone, DATETIME_FULL)}
               </div>
             </div>

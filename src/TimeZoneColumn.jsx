@@ -3,13 +3,8 @@ import { html } from "htm/preact";
 import TimezoneSelect from "react-timezone-select";
 import { nextHour } from "./util";
 
-export function TimeZoneColumn({
-  localZone,
-  zones,
-  setZones,
-  dates,
-  setDates,
-}) {
+export function TimeZoneColumn(props) {
+  const { zones, setZones, dates, setDates } = props;
   const addZoneRow = () => {
     setZones([...zones, zones[zones.length - 1]]);
   };
@@ -24,14 +19,9 @@ export function TimeZoneColumn({
         <button onClick=${addDateColumn}>Add Date →</button>
       </div>
 
-      ${zones.map((zone, index) => {
-        return html`<${TimeZoneCell}
-          isLocal=${localZone === zone}
-          zones=${zones}
-          index=${index}
-          setZones=${setZones}
-        />`;
-      })}
+      ${zones.map(
+        (zone, index) => html`<${TimeZoneCell} index=${index} ...${props} />`
+      )}
     </div>
   `;
 }
@@ -46,12 +36,12 @@ const timeZoneSelectStyles = {
   },
 };
 
-function TimeZoneCell({ isLocal, zones, index, setZones }) {
+function TimeZoneCell({ index, zones, setZones }) {
   const zone = zones[index];
 
-  const setZone = (z) => {
-    if (!z?.value) return;
-    zones[index] = z.value;
+  const setZone = (newZone) => {
+    if (!newZone?.value) return;
+    zones[index] = newZone.value;
     setZones([...zones]);
   };
 
@@ -61,13 +51,15 @@ function TimeZoneCell({ isLocal, zones, index, setZones }) {
   };
 
   return html`
-    <div class="Cell${isLocal ? " isLocal" : ""}">
+    <div class="Cell">
       <${TimezoneSelect}
         value=${zone}
         onChange=${setZone}
         styles=${timeZoneSelectStyles}
       />
-      <button class="CloseButton" onClick=${removeZone}>×</button>
+      ${index === 0
+        ? html`<span class="CloseButtonSpacer">×</span>`
+        : html`<button class="CloseButton" onClick=${removeZone}>×</button>`}
     </div>
   `;
 }
