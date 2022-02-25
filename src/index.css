@@ -97,7 +97,7 @@ button:hover {
   visibility: hidden;
 }
 
-.DateColumn:hover .CloseButton {
+.Column:hover .CloseButton {
   visibility: visible;
 }
 
