@@ -6,7 +6,14 @@ import "react-datepicker/dist/react-datepicker.css";
 
 import { DATETIME_FULL } from "./util";
 
-export function DateColumn({ index, dates, zones, setDates }) {
+export function DateColumn({
+  index,
+  dates,
+  zones,
+  title,
+  titleInitial,
+  setDates,
+}) {
   const date = dates[index];
 
   const setDate = (newDate) => {
@@ -22,8 +29,8 @@ export function DateColumn({ index, dates, zones, setDates }) {
 
   const calendarLink = (type) => {
     const event = {
-      title: "Meeting",
-      start: zonedTimeToUtc(dates[0], zones[0]),
+      title: !title || title === titleInitial ? "Meeting" : title,
+      start: zonedTimeToUtc(dates[index], zones[0]),
       duration: [1, "hour"],
     };
 

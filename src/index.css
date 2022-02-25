@@ -31,6 +31,20 @@ button:hover {
   font-size: 60px;
 }
 
+#Header {
+  height: 60px;
+}
+
+#Title {
+  border: 0;
+  color: #444;
+  font-size: 32px;
+  font-weight: bold;
+  margin: 20px 0 0;
+  padding: 0;
+  width: 100%;
+}
+
 #App {
   display: flex;
 }
@@ -139,4 +153,3 @@ button:hover {
 .DateColumn:hover .DownloadCell button {
   display: inline-block;
 }
-

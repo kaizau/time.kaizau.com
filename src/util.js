@@ -13,18 +13,22 @@ export function nextHour() {
   );
 }
 
-export function serialize(dates, zones) {
+export function serialize({ dates, zones, title }) {
   const dateString = dates
     .map((d) => parseInt(d.valueOf() / 1000, 10))
     .join("!");
   const zoneString = zones.join("!").replace(/\//g, ".");
 
-  const params = new URLSearchParams({
+  const params = {
     z: zoneString,
     d: dateString,
-  });
+  };
 
-  return `?${params.toString()}`;
+  if (title) {
+    params.t = title;
+  }
+
+  return `?${new URLSearchParams(params).toString()}`;
 }
 
 export function deserialize(qs) {
@@ -41,5 +45,7 @@ export function deserialize(qs) {
     .split("!")
     .filter((d) => !!d);
 
-  return { dates, zones };
+  const title = params.get("t") || "";
+
+  return { dates, zones, title };
 }

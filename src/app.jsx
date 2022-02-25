@@ -1,3 +1,4 @@
+import { createPortal } from "preact/compat";
 import { useEffect, useState } from "preact/hooks";
 import { html } from "htm/preact";
 import { add } from "date-fns";
@@ -5,10 +6,30 @@ import { nextHour, serialize, deserialize } from "./util";
 import { TimeZoneColumn } from "./TimeZoneColumn.jsx";
 import { DateColumn } from "./DateColumn.jsx";
 
+const titleInitial = "Which times work for you?";
+
+const headerEl = document.getElementById("Header");
+
+function Header({ title, setTitle }) {
+  const onInput = (e) => {
+    setTitle(e.target.value);
+  };
+  return html`<input id="Title" value="${title}" onInput=${onInput} />`;
+}
+
 export function App() {
   const [zones, setZones] = useState([]);
   const [dates, setDates] = useState([]);
-  const props = { zones, setZones, dates, setDates };
+  const [title, setTitle] = useState(titleInitial);
+  const props = {
+    zones,
+    setZones,
+    dates,
+    setDates,
+    title,
+    setTitle,
+    titleInitial,
+  };
 
   // Initial values from query string
   useEffect(() => {
@@ -34,15 +55,27 @@ export function App() {
     } else {
       setDates(parsed.dates);
     }
+
+    // TODO Sanitize?
+    if (parsed.title) {
+      setTitle(parsed.title);
+    }
   }, []);
 
   // Update query string when state changes
   useEffect(() => {
-    const qs = serialize(dates, zones);
+    const data = {
+      dates,
+      zones,
+      title: title === titleInitial ? "" : title,
+    };
+    const qs = serialize(data);
     window.history.replaceState({}, "", qs);
-  }, [dates, zones]);
+  }, [dates, zones, title]);
 
   return html`
+    ${createPortal(html`<${Header} ...${props} />`, headerEl)}
+
     <${TimeZoneColumn} ...${props} />
 
     ${dates.map((date, index) => {
