@@ -26,6 +26,6 @@
     "eslint-config-prettier": "^8.3.0",
     "eslint-plugin-prettier": "^4.0.0",
     "prettier": "^2.5.1",
-    "vite": "^2.9.13"
+    "vite": "^2.9.16"
   }
 }
