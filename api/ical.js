@@ -29,18 +29,29 @@ exports.handler = async function (event, context) {
     };
   }
 
+  //
   // Assign values
-  data.productId = "kz-time";
+  //
 
+  // Parses many date formats into compatible array, but ultimately persisted as
+  // 2020,12,30,23,59,0
   data.start = data.start.split(/[^\d]+/).map((str) => parseInt(str, 10));
 
+  // Cache state into URL
+  const url = "http://localhost:8888/api/ical?";
+  const searchParams = new URLSearchParams(data);
+  data.url = url + searchParams.toString();
+
+  //
+  // Create iCal file
+  //
+
+  data.productId = "kz-time";
+
+  // Expects exactly two values with plural unit, ex: 1,hours
   const [durationVal, durationUnit] = data.duration.split(",");
   data.duration = { [durationUnit]: parseInt(durationVal, 10) };
 
-  // Bump sequence if provided
-  if (data.sequence) data.sequence = parseInt(data.sequence, 10) + 1;
-
-  // Create iCal file
   const { error, value } = ics.createEvent(data);
   if (error) {
     return {
