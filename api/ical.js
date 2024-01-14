@@ -1,59 +1,70 @@
 // This function is a thin wrapper on top of https://www.npmjs.com/package/ics.
-// All config options are exposed as query params.
+
+const { v4: uuidv4 } = require("uuid");
+const { RRule } = require("rrule");
 const ics = require("ics");
 
-const supported = [
-  "title",
-  "start",
-  "duration",
-  "description",
-  "recurrenceRule",
-  "uid",
-  "sequence",
-];
+const dayOfWeek = ["SU", "MO", "TU", "WE", "TH", "FR", "SA"];
 
 // eslint-disable-next-line no-unused-vars
 exports.handler = async function (event, context) {
   // Use query params as starting point
-  const data = {};
+  const qs = {};
   Object.keys(event.queryStringParameters).forEach((key) => {
-    if (supported.includes(key)) {
-      data[key] = event.queryStringParameters[key];
+    if (event.queryStringParameters[key]) {
+      qs[key] = event.queryStringParameters[key];
     }
   });
 
-  if (!data.title || !data.start || !data.duration) {
+  if (!qs.title || !qs.ts || !qs.interval || !qs.email) {
     return {
       statusCode: 400,
       body: "Missing required parameters",
     };
   }
 
-  //
-  // Assign values
-  //
-
-  // Parses many date formats into compatible array, but ultimately persisted as
-  // 2020,12,30,23,59,0
-  data.start = data.start.split(/[^\d]+/).map((str) => parseInt(str, 10));
+  const data = {};
+  data.uid = qs.uid || uuidv4();
+  data.sequence = qs.sequence ? parseInt(qs.sequence, 10) + 1 : 1;
 
   // Cache state into URL
-  const url = "http://localhost:8888/api/ical?";
-  const searchParams = new URLSearchParams(data);
-  data.url = url + searchParams.toString();
+  qs.uid = data.uid;
+  qs.sequence = data.sequence;
+  const searchParams = new URLSearchParams(qs);
+  data.url = `http://localhost:8888/calendar?${searchParams.toString()}`;
+
+  //
+  // Format iCal values
+  //
+
+  data.productId = "time.kaizau.com";
+  data.organizer = { name: "Kai Zau", email: "calendar@kaizau.com" };
+  data.attendees = [{ name: qs.email, email: qs.email }];
+
+  data.title = qs.title;
+
+  const date = new Date(parseInt(qs.ts, 10));
+  data.start = date
+    .toISOString()
+    .split(".")[0]
+    .split(/[^\d]+/)
+    .map((str) => parseInt(str, 10));
+  data.duration = { hours: 1 };
+  const rule = new RRule({
+    freq: RRule.WEEKLY,
+    interval: parseInt(qs.interval, 10),
+    byweekday: RRule[dayOfWeek[date.getDay()]],
+  });
+  data.recurrenceRule = rule.toString().slice(6); // Remove "RRULE:"
 
   //
   // Create iCal file
   //
 
-  data.productId = "kz-time";
-
-  // Expects exactly two values with plural unit, ex: 1,hours
-  const [durationVal, durationUnit] = data.duration.split(",");
-  data.duration = { [durationUnit]: parseInt(durationVal, 10) };
-
   const { error, value } = ics.createEvent(data);
   if (error) {
+    // eslint-disable-next-line no-console
+    console.error(error);
     return {
       statusCode: 500,
       body: "Error creating iCal data",
@@ -61,6 +72,8 @@ exports.handler = async function (event, context) {
   }
 
   const headers = {
+    "X-UID": data.uid,
+    "X-Sequence": data.sequence,
     "Content-Type": "text/calendar",
     "Content-Disposition": `attachment; filename=${encodeURIComponent(
       "event.ics",
