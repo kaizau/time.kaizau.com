@@ -8,59 +8,86 @@
     <link rel="stylesheet" href="/src/global.css" />
   </head>
   <body>
-    <div class="Container">
-      <div class="Logo">🗓️🧞‍♂️</div>
-      <div>Magically recurring calendar invites to catch up on life</div>
+    <div class="flex justify-center items-center min-h-screen bg-gray-100">
+      <div class="max-w-md w-full p-6 bg-white rounded-lg shadow-md">
+        <div class="mb-6">
+          <div class="text-6xl mb-3">🗓️🧞‍♂️</div>
+          <div class="text-2xl">Magically recurring calendar invites</div>
+        </div>
+
+        <form>
+          <input type="hidden" name="uid" />
+          <input type="hidden" name="sequence" />
+
+          <div class="mb-4">
+            <label for="title" class="text-gray-800">Event Title:</label>
+            <input
+              type="text"
+              id="title"
+              name="title"
+              required
+              class="block w-full p-2 mt-1 border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
+            />
+          </div>
+
+          <div class="mb-4">
+            <label for="email" class="text-gray-800">Your Email:</label>
+            <input
+              type="email"
+              id="email"
+              name="email"
+              required
+              class="block w-full p-2 mt-1 border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
+            />
+          </div>
+
+          <div class="mb-4">
+            <label for="date" class="text-gray-800">Next Date:</label>
+            <input
+              type="date"
+              id="date"
+              name="date"
+              required
+              class="block w-full p-2 mt-1 border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
+            />
+          </div>
+
+          <div class="mb-4">
+            <label for="time" class="text-gray-800">Time:</label>
+            <input
+              type="time"
+              id="time"
+              name="time"
+              pattern="[0-9]{2}:[0-9]{2}"
+              required
+              class="block w-full p-2 mt-1 border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
+            />
+          </div>
+
+          <div class="mb-4">
+            <label for="interval" class="text-gray-800">Repeat:</label>
+            <select
+              id="interval"
+              name="interval"
+              required
+              class="block w-full p-2 mt-1 border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
+            >
+              <option value="4">Every 4 weeks</option>
+              <option value="8">Every 8 weeks</option>
+              <option value="12">Every 12 weeks</option>
+            </select>
+          </div>
+
+          <div class="text-center">
+            <input
+              type="submit"
+              value="Make it so!"
+              class="py-2 px-4 font-semibold text-white bg-indigo-500 rounded-md cursor-pointer hover:bg-indigo-600"
+            />
+          </div>
+        </form>
+      </div>
     </div>
-
-    <form class="Container" action="/api/ical" method="GET">
-      <input type="hidden" name="uid" />
-      <input type="hidden" name="sequence" />
-
-      <div>
-        <label for="title">Title:</label>
-        <input type="text" id="title" name="title" required />
-      </div>
-
-      <div>
-        <label for="date">Date:</label>
-        <input type="date" id="date" name="date" required />
-      </div>
-
-      <div>
-        <label for="time">Time:</label>
-        <input
-          type="time"
-          id="time"
-          name="time"
-          pattern="[0-9]{2}:[0-9]{2}"
-          required
-        />
-      </div>
-
-      <div>
-        <label for="interval">Repeat:</label>
-        <select id="interval" name="interval" required>
-          <option value="4">Every 4 weeks</option>
-          <option value="8">Every 8 weeks</option>
-          <option value="12">Every 12 weeks</option>
-        </select>
-      </div>
-
-      <div>
-        <label for="description">Description:</label>
-        <textarea id="description" name="description"></textarea>
-      </div>
-
-      <div>
-        <label for="email">Your Email:</label>
-        <input type="email" id="email" name="email" required />
-      </div>
-
-      <div>
-        <input type="submit" value="Make it so!" />
-      </div>
-    </form>
 
     <script type="module" src="/src/calendar/main.js"></script>
   </body>

@@ -37,11 +37,14 @@ $form.addEventListener("submit", (e) => {
       const url = URL.createObjectURL(blob);
       const $a = document.createElement("a");
       $a.href = url;
-      $a.download = "event.ics";
+      $a.download = "magic.ics";
       document.body.appendChild($a);
       $a.click();
       document.body.removeChild($a);
       URL.revokeObjectURL(url);
+    })
+    .catch((error) => {
+      console.error(error);
     });
   // TODO Show confirmation
 });
