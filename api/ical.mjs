@@ -1,20 +1,17 @@
 // This function is a thin wrapper on top of https://www.npmjs.com/package/ics.
 
-const { v4: uuidv4 } = require("uuid");
-const { RRule } = require("rrule");
-const ics = require("ics");
+import { v4 as uuidv4 } from "uuid";
+import rrule from "rrule";
+import ics from "ics";
 
+// RRule is actually CJS, so throws warnings if not imported as default
+const { RRule } = rrule;
 const dayOfWeek = ["SU", "MO", "TU", "WE", "TH", "FR", "SA"];
 
 // eslint-disable-next-line no-unused-vars
-exports.handler = async function (event, context) {
-  // Use query params as starting point
-  const qs = {};
-  Object.keys(event.queryStringParameters).forEach((key) => {
-    if (event.queryStringParameters[key]) {
-      qs[key] = event.queryStringParameters[key];
-    }
-  });
+export default async (req, ctx) => {
+  const url = new URL(req.url);
+  const qs = Object.fromEntries(url.searchParams.entries());
 
   if (!qs.title || !qs.ts || !qs.interval || !qs.email) {
     return {
@@ -31,7 +28,7 @@ exports.handler = async function (event, context) {
   qs.uid = data.uid;
   qs.sequence = data.sequence;
   const searchParams = new URLSearchParams(qs);
-  data.url = `http://localhost:8888/calendar?${searchParams.toString()}`;
+  data.url = `${url.origin}/calendar?${searchParams.toString()}`;
 
   //
   // Format iCal values
@@ -65,10 +62,7 @@ exports.handler = async function (event, context) {
   if (error) {
     // eslint-disable-next-line no-console
     console.error(error);
-    return {
-      statusCode: 500,
-      body: "Error creating iCal data",
-    };
+    return new Response("Error creating iCal data", { status: 500 });
   }
 
   const headers = {
@@ -79,10 +73,5 @@ exports.handler = async function (event, context) {
       "event.ics",
     )}`,
   };
-
-  return {
-    statusCode: 200,
-    headers,
-    body: value,
-  };
+  return new Response(value, { headers });
 };
