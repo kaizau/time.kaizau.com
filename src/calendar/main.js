@@ -43,6 +43,7 @@ $form.addEventListener("submit", (e) => {
       document.body.removeChild($a);
       URL.revokeObjectURL(url);
     });
+  // TODO Show confirmation
 });
 
 function prefill(obj) {

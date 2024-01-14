@@ -1,0 +1,18 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    @apply min-h-full;
+  }
+
+  body {
+    @apply flex flex-col min-h-full text-slate-800;
+    @apply bg-no-repeat bg-gradient-to-br from-slate-50 to-slate-300;
+  }
+
+  .Container {
+    @apply w-full mx-auto max-w-screen-xl px-6;
+  }
+}

@@ -5,17 +5,15 @@
     <link rel="icon" href="data:;base64,iVBORw0KGgo=" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Digital Serendipity</title>
-    <link rel="stylesheet" href="/src/index.css" />
+    <link rel="stylesheet" href="/src/global.css" />
   </head>
   <body>
-    <div class="Intro">
+    <div class="Container">
       <div class="Logo">🗓️🧞‍♂️</div>
-      <div id="Header">
-        Magically recurring calendar invites to catch up on life
-      </div>
+      <div>Magically recurring calendar invites to catch up on life</div>
     </div>
 
-    <form action="/api/ical" method="GET">
+    <form class="Container" action="/api/ical" method="GET">
       <input type="hidden" name="uid" />
       <input type="hidden" name="sequence" />
 
