@@ -1,26 +1,23 @@
-// This function is a thin wrapper on top of https://www.npmjs.com/package/ics.
-//
-// Given url params, it:
+// Given event url params, this function:
 // - Creates an iCal event with a self-editing link
 // - Sends the event to attendees by email
-// - Provides the event as a download
 
 // TODO
-// - Maybe automatically increment sequence based on time? Would prevent need to track this in URL messy.
+// Maybe increment sequence based on time? Would otherwise need to track this in URL,
+// but calendar replies may also bump the number.
 
 import { v4 as uuidv4 } from "uuid";
 import rrule from "rrule";
 import ics from "ics";
 import sgMail from "@sendgrid/mail";
-
 const { RRule } = rrule; // Workaround rrule CJS export
 
-const organizerName = "Serendipity Bot";
+const servicePath = "genie";
+const organizerName = "Serendipity Genie";
 const organizerEmail = "serendipity@m.kaizau.com";
 const hostName = "Kai Zau";
 const hostEmail = "kai@kaizau.com";
 const dayOfWeek = ["SU", "MO", "TU", "WE", "TH", "FR", "SA"];
-
 sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
 export default async (req /* , ctx */) => {
@@ -64,10 +61,10 @@ function createEventData(url, qs) {
     interval: qs.interval,
     email: qs.email,
   };
-  data.description = `Reschedule: ${url.origin}/calendar?${new URLSearchParams(next).toString()}`;
+  data.description = `Reschedule: ${url.origin}/${servicePath}?${new URLSearchParams(next).toString()}`;
 
   // Format iCal values
-  data.productId = organizerName;
+  data.productId = "com.kaizau.time";
   data.organizer = { name: organizerName, email: organizerEmail };
   data.attendees = [
     {
@@ -106,7 +103,7 @@ function sendEmails(emails, ics) {
   const message = {
     from: { name: organizerName, email: organizerEmail },
     to: emails,
-    subject: "🗓️🧞‍♂️ Magical calendar invite!",
+    subject: "🗓️🧞‍♂️ A magical calendar invite!",
     text: "Behold! A magic calendar invite!",
     html: "<h1>Behold!</h1><p>A magic calendar invite!</p>",
     attachments: [

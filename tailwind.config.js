@@ -2,7 +2,11 @@
 export default {
   content: ["./*.html", "./src/**/*.{js,ts,jsx,tsx}"],
   theme: {
-    extend: {},
+    extend: {
+      transitionProperty: {
+        spacing: "margin, padding",
+      },
+    },
   },
   plugins: [],
 };
