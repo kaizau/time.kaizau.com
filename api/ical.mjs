@@ -6,27 +6,22 @@
 // - Provides the event as a download
 
 // TODO
-// - What happens when user replies from own calendar? Does Apple / Google send its own iCal to the organizer and all attendees?
 // - Maybe automatically increment sequence based on time? Would prevent need to track this in URL messy.
 
 import { v4 as uuidv4 } from "uuid";
 import rrule from "rrule";
 import ics from "ics";
-import Mailjet from "node-mailjet";
+import sgMail from "@sendgrid/mail";
 
 const { RRule } = rrule; // Workaround rrule CJS export
 
 const organizerName = "Serendipity Bot";
-const organizerEmail = "serendipity@kaizau.com";
+const organizerEmail = "serendipity@m.kaizau.com";
 const hostName = "Kai Zau";
 const hostEmail = "kai@kaizau.com";
-const senderEmail = "serendipity@mail.kaizau.com";
 const dayOfWeek = ["SU", "MO", "TU", "WE", "TH", "FR", "SA"];
 
-const mailjet = new Mailjet({
-  apiKey: process.env.MAILJET_API_KEY,
-  apiSecret: process.env.MAILJET_API_SECRET,
-});
+sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
 export default async (req /* , ctx */) => {
   const url = new URL(req.url);
@@ -108,28 +103,23 @@ function createEventData(url, qs) {
 }
 
 function sendEmails(emails, ics) {
-  const To = emails.map((Email) => {
-    return { Email, Name: Email };
-  });
-  const Messages = [
-    {
-      To,
-      From: { Email: senderEmail, Name: organizerName },
-      Subject: "🗓️🧞‍♂️ Magical calendar invite!",
-      TextPart: "Behold! A magic calendar invite!",
-      HTMLPart: "<h1>Behold!</h1><p>A magic calendar invite!</p>",
-      Attachments: [
-        {
-          ContentType: `text/calendar; method=REQUEST`,
-          Filename: "magic.ics",
-          Base64Content: Buffer.from(ics).toString("base64"),
-        },
-      ],
-    },
-  ];
-  return mailjet
-    .post("send", { version: "v3.1" })
-    .request({ Messages })
+  const message = {
+    from: { name: organizerName, email: organizerEmail },
+    to: emails,
+    subject: "🗓️🧞‍♂️ Magical calendar invite!",
+    text: "Behold! A magic calendar invite!",
+    html: "<h1>Behold!</h1><p>A magic calendar invite!</p>",
+    attachments: [
+      {
+        type: `text/calendar; method=REQUEST`,
+        filename: "serendipity.ics",
+        content: Buffer.from(ics).toString("base64"),
+        disposition: "attachment",
+      },
+    ],
+  };
+  return sgMail
+    .send(message)
     .then(() => console.log(`Emails sent to ${emails.join(", ")}`))
     .catch((error) => console.error(error));
 }
