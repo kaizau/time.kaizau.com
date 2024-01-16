@@ -17,9 +17,10 @@ import Mailjet from "node-mailjet";
 const { RRule } = rrule; // Workaround rrule CJS export
 
 const organizerName = "Serendipity Bot";
-const organizerEmail = "serendipity@mail.kaizau.com";
+const organizerEmail = "serendipity@kaizau.com";
 const hostName = "Kai Zau";
 const hostEmail = "kai@kaizau.com";
+const senderEmail = "serendipity@mail.kaizau.com";
 const dayOfWeek = ["SU", "MO", "TU", "WE", "TH", "FR", "SA"];
 
 const mailjet = new Mailjet({
@@ -37,7 +38,6 @@ export default async (req /* , ctx */) => {
 
   const data = createEventData(url, qs);
 
-  // Create ICS files
   const event = ics.createEvent(data);
   if (event.error) {
     // eslint-disable-next-line no-console
@@ -108,14 +108,13 @@ function createEventData(url, qs) {
 }
 
 function sendEmails(emails, ics) {
-  const file = Buffer.from(ics).toString("base64");
   const To = emails.map((Email) => {
     return { Email, Name: Email };
   });
   const Messages = [
     {
       To,
-      From: { Email: organizerEmail, Name: organizerName },
+      From: { Email: senderEmail, Name: organizerName },
       Subject: "🗓️🧞‍♂️ Magical calendar invite!",
       TextPart: "Behold! A magic calendar invite!",
       HTMLPart: "<h1>Behold!</h1><p>A magic calendar invite!</p>",
@@ -123,12 +122,11 @@ function sendEmails(emails, ics) {
         {
           ContentType: `text/calendar; method=REQUEST`,
           Filename: "magic.ics",
-          Base64Content: file,
+          Base64Content: Buffer.from(ics).toString("base64"),
         },
       ],
     },
   ];
-
   return mailjet
     .post("send", { version: "v3.1" })
     .request({ Messages })
