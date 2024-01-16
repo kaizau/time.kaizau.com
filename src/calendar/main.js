@@ -22,31 +22,20 @@ $form.addEventListener("submit", (e) => {
   const url = `/api/ical?${new URLSearchParams(data).toString()}`;
 
   fetch(url)
+    .then((res) => res.json())
     .then((res) => {
       // Update uid and sequence
-      data.uid = res.headers.get("X-UID");
-      data.sequence = res.headers.get("X-Sequence");
+      data.uid = res.uid;
+      data.sequence = res.sequence;
       const query = new URLSearchParams(data).toString();
       window.history.pushState({}, "", `?${query}`);
       $form.querySelector("[name=uid]").value = data.uid;
       $form.querySelector("[name=sequence]").value = data.sequence;
-
-      return res.blob();
-    })
-    .then((blob) => {
-      const url = URL.createObjectURL(blob);
-      const $a = document.createElement("a");
-      $a.href = url;
-      $a.download = "magic.ics";
-      document.body.appendChild($a);
-      $a.click();
-      document.body.removeChild($a);
-      URL.revokeObjectURL(url);
+      // TODO Show confirmation
     })
     .catch((error) => {
       console.error(error);
     });
-  // TODO Show confirmation
 });
 
 function prefill(obj) {

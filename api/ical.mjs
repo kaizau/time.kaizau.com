@@ -16,6 +16,10 @@ import Mailjet from "node-mailjet";
 
 const { RRule } = rrule; // Workaround rrule CJS export
 
+const organizerName = "Serendipity Bot";
+const organizerEmail = "serendipity@mail.kaizau.com";
+const hostName = "Kai Zau";
+const hostEmail = "kai@kaizau.com";
 const dayOfWeek = ["SU", "MO", "TU", "WE", "TH", "FR", "SA"];
 
 const mailjet = new Mailjet({
@@ -23,8 +27,7 @@ const mailjet = new Mailjet({
   apiSecret: process.env.MAILJET_API_SECRET,
 });
 
-// eslint-disable-next-line no-unused-vars
-export default async (req, ctx) => {
+export default async (req /* , ctx */) => {
   const url = new URL(req.url);
   const qs = Object.fromEntries(url.searchParams.entries());
 
@@ -34,33 +37,30 @@ export default async (req, ctx) => {
 
   const data = createEventData(url, qs);
 
-  const { error, value: file } = ics.createEvent(data);
-  if (error) {
+  // Create ICS files
+  const event = ics.createEvent(data);
+  if (event.error) {
     // eslint-disable-next-line no-console
-    console.error(error);
+    console.error(event.error);
     return new Response("Error creating iCal data", { status: 500 });
   }
 
-  await sendEmail({ email: qs.email, method: data.method, file });
+  await sendEmails([hostEmail, qs.email], event.value);
 
-  const headers = {
-    "X-UID": data.uid,
-    "X-Sequence": data.sequence,
-    "Content-Type": "text/calendar",
-    "Content-Disposition": `attachment; filename=${encodeURIComponent(
-      "magic.ics",
-    )}`,
-  };
-  return new Response(file, { headers });
+  // Respond with JSON containing uid and sequence
+  return new Response(
+    JSON.stringify({ uid: data.uid, sequence: data.sequence }),
+    { headers: { "Content-Type": "application/json" } },
+  );
 };
 
 function createEventData(url, qs) {
   const data = {};
   data.uid = qs.uid || uuidv4();
   data.sequence = qs.sequence ? parseInt(qs.sequence, 10) + 1 : 1;
-  data.method = data.sequence > 1 ? "REQUEST" : "PUBLISH";
+  data.method = "REQUEST";
 
-  // Cache essential state into URL
+  // Cache essential state into description
   const next = {
     uid: data.uid,
     sequence: data.sequence,
@@ -69,16 +69,21 @@ function createEventData(url, qs) {
     interval: qs.interval,
     email: qs.email,
   };
-  data.url = `${url.origin}/calendar?${new URLSearchParams(next).toString()}`;
+  data.description = `Reschedule: ${url.origin}/calendar?${new URLSearchParams(next).toString()}`;
 
   // Format iCal values
-  data.productId = "time.kaizau.com";
-  data.organizer = { name: "Kai Zau", email: "calendar@kaizau.com" };
+  data.productId = organizerName;
+  data.organizer = { name: organizerName, email: organizerEmail };
   data.attendees = [
+    {
+      name: hostName,
+      email: hostEmail,
+      rsvp: true,
+    },
     {
       name: qs.email,
       email: qs.email,
-      partstat: "ACCEPTED",
+      rsvp: true,
     },
   ];
   data.title = qs.title;
@@ -102,29 +107,31 @@ function createEventData(url, qs) {
   return data;
 }
 
-function sendEmail({ email, method, file }) {
-  const encoded = Buffer.from(file).toString("base64");
+function sendEmails(emails, ics) {
+  const file = Buffer.from(ics).toString("base64");
+  const To = emails.map((Email) => {
+    return { Email, Name: Email };
+  });
+  const Messages = [
+    {
+      To,
+      From: { Email: organizerEmail, Name: organizerName },
+      Subject: "🗓️🧞‍♂️ Magical calendar invite!",
+      TextPart: "Behold! A magic calendar invite!",
+      HTMLPart: "<h1>Behold!</h1><p>A magic calendar invite!</p>",
+      Attachments: [
+        {
+          ContentType: `text/calendar; method=REQUEST`,
+          Filename: "magic.ics",
+          Base64Content: file,
+        },
+      ],
+    },
+  ];
 
   return mailjet
     .post("send", { version: "v3.1" })
-    .request({
-      Messages: [
-        {
-          From: { Email: "magic@mail.kaizau.com", Name: "Calendar Magic" },
-          To: [{ Email: email, Name: email }],
-          Subject: "🗓️🧞‍♂️ Magical calendar invite!",
-          TextPart: "Behold! A magic calendar invite!",
-          HTMLPart: "<h1>Behold!</h1><p>A magic calendar invite!</p>",
-          Attachments: [
-            {
-              ContentType: `text/calendar; method=${method}`,
-              Filename: "magic.ics",
-              Base64Content: encoded,
-            },
-          ],
-        },
-      ],
-    })
-    .then(() => console.log(`Email sent to ${email}`))
+    .request({ Messages })
+    .then(() => console.log(`Emails sent to ${emails.join(", ")}`))
     .catch((error) => console.error(error));
 }
