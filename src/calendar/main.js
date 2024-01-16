@@ -64,11 +64,15 @@ function prefill(obj) {
 }
 
 function getDateTime(ts) {
-  const date = ts ? new Date(parseInt(ts, 10)) : Date.now();
+  let date;
+  if (ts) {
+    date = new Date(parseInt(ts, 10));
+  } else {
+    date = new Date();
+    date.setHours(date.getHours() + 1, 0, 0, 0);
+  }
 
-  let hours = new Date().getHours();
-  hours = hours === 23 ? 0 : hours + 1;
-  hours = `0${hours.toString()}`.slice(-2);
+  const hours = `0${date.getHours()}`.slice(-2);
   const minutes = `0${date.getMinutes()}`.slice(-2);
   const time = `${hours}:${minutes}`;
 
