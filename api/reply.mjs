@@ -1,7 +1,7 @@
-import { IncomingForm } from "formidable";
+import formidable from "formidable";
 
 export default async (req /* , ctx */) => {
-  const form = new IncomingForm();
+  const form = formidable();
   form.parse(req, (err, fields, files) => {
     if (err) {
       console.error("Ignoring invalid request:", err);
