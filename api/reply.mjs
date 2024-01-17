@@ -1,28 +1,19 @@
+import { IncomingForm } from "formidable";
+
 export default async (req /* , ctx */) => {
-  let data = {};
-  let attachments = [];
-  try {
-    const formData = await req.formData();
-    for (const [key, value] of formData) {
-      if (value instanceof File) {
-        const attachment = {
-          filename: value.name,
-          type: value.type,
-          size: value.size,
-          content: await value.arrayBuffer(),
-        };
-        attachments.push(attachment);
-      } else {
-        data[key] = value;
-      }
+  const form = new IncomingForm();
+  form.parse(req, (err, fields, files) => {
+    if (err) {
+      console.error("Ignoring invalid request:", err);
+      return new Response("🏖️");
     }
-  } catch (e) {
-    console.log("Ignoring invalid request", e);
-    return new Response("🏖️");
-  }
 
-  console.log(data);
-  console.log(attachments);
+    console.log("Fields:", fields);
+    console.log("Files:", files);
 
-  return new Response("ok");
+    // Process the attachments as needed
+    // Each file in 'files' will have properties like 'filepath', 'originalFilename', 'mimetype', etc.
+
+    return new Response("ok");
+  });
 };
