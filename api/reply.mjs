@@ -7,6 +7,7 @@ export default async (req /* , ctx */) => {
   const stream = new Readable();
   stream.push(req.body);
   stream.push(null); // end of stream
+  stream.headers = req.headers;
 
   const form = new IncomingForm();
   form.parse(stream, (err, fields, files) => {
