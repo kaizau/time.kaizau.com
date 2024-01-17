@@ -1,6 +1,10 @@
 export default async (req /* , ctx */) => {
-  const body = await req.json();
-  console.log(body);
+  const formData = await req.formData();
+  const parts = {};
+  for (const [key, value] of formData) {
+    parts[key] = value;
+  }
+  console.log(parts);
 
   return new Response("ok");
 };
