@@ -15,10 +15,10 @@
   },
   "dependencies": {
     "@sendgrid/mail": "^8.1.0",
+    "busboy": "^1.6.0",
     "calendar-link": "^2.6.0",
     "date-fns": "2.30.0",
     "date-fns-tz": "2.0.0",
-    "formidable": "^3.5.1",
     "htm": "^3.1.1",
     "ics": "^3.7.2",
     "preact": "^10.19.3",

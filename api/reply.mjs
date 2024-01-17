@@ -1,17 +1,35 @@
-import { IncomingForm } from "formidable";
+import busboy from "busboy";
 
 export default async (req /* , ctx */) => {
-  let field, files;
-  try {
-    const form = new IncomingForm();
-    [field, files] = await form.parse(req);
-  } catch (error) {
-    console.error("Ignoring invalid request:", error);
-    return new Response("🧞‍♂️");
-  }
+  const fields = {};
+  const files = [];
 
-  console.log("Fields:", field);
+  const bb = busboy({ headers: req.headers });
+
+  bb.on("field", (key, val) => {
+    fields[key] = val;
+  });
+
+  bb.on("file", (name, file, info, encoding, mime) => {
+    let content = Buffer.from("");
+    file
+      .on("data", (data) => {
+        content = Buffer.concat([content, data]);
+      })
+      .on("close", () => {
+        files.push({ name, file, info, encoding, mime, content });
+      });
+  });
+
+  const finished = new Promise((resolve, reject) => {
+    busboy.on("finish", () => resolve());
+    busboy.on("error", (error) => reject(error));
+  });
+
+  await finished;
+
+  console.log("Fields:", fields);
   console.log("Files:", files);
 
-  return new Response("ok");
+  return new Response("🧞‍♂️");
 };
