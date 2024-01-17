@@ -1,19 +1,17 @@
 import { IncomingForm } from "formidable";
 
 export default async (req /* , ctx */) => {
-  const form = new IncomingForm();
-  form.parse(req.body, (err, fields, files) => {
-    if (err) {
-      console.error("Ignoring invalid request:", err.message);
-      return new Response("🏖️");
-    }
+  let field, files;
+  try {
+    const form = new IncomingForm();
+    [field, files] = await form.parse(req);
+  } catch (error) {
+    console.error("Ignoring invalid request:", error);
+    return new Response("🧞‍♂️");
+  }
 
-    console.log("Fields:", fields);
-    console.log("Files:", files);
+  console.log("Fields:", field);
+  console.log("Files:", files);
 
-    // Process the attachments as needed
-    // Each file in 'files' will have properties like 'filepath', 'originalFilename', 'mimetype', etc.
-
-    return new Response("ok");
-  });
+  return new Response("ok");
 };
