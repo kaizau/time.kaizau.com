@@ -13,7 +13,15 @@ module.exports = {
     "no-unused-vars": "warn",
     "no-else-return": "off",
   },
-
+  overrides: [
+    {
+      files: ["api/*"],
+      env: {
+        browser: false,
+        node: true,
+      },
+    },
+  ],
   // Required to fix eslint-config-preact error
   settings: {
     jest: {
