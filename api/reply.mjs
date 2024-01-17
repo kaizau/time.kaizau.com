@@ -1,10 +1,14 @@
 export default async (req /* , ctx */) => {
-  const formData = await req.formData();
-  const parts = {};
-  for (const [key, value] of formData) {
-    parts[key] = value;
+  let data = {};
+  try {
+    const formData = await req.formData();
+    for (const [key, value] of formData) {
+      data[key] = value;
+    }
+    console.log(data);
+  } catch (e) {
+    return new Response("🏖️");
   }
-  console.log(parts);
 
   return new Response("ok");
 };
