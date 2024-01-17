@@ -1,5 +1,5 @@
 import { Readable } from "stream";
-import formidable from "formidable";
+import { IncomingForm } from "formidable";
 
 export default async (req /* , ctx */) => {
   // Convert to stream for formidable, since Netlify functions don't
@@ -8,7 +8,7 @@ export default async (req /* , ctx */) => {
   stream.push(req.body);
   stream.push(null); // end of stream
 
-  const form = formidable();
+  const form = new IncomingForm();
   form.parse(stream, (err, fields, files) => {
     if (err) {
       console.error("Ignoring invalid request:", err.message);
