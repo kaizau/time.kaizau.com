@@ -62,7 +62,7 @@ async function forwardReplyToAttendees(req) {
       .map((attendee) => attendee.val.replace(/mailto:/i, ""))
       .filter((attendee) => attendee !== sender);
 
-    console.log(forwardTo);
+    console.log(attendees, sender, forwardTo);
 
     await sendEmails({
       emails: forwardTo,
