@@ -41,7 +41,7 @@ export default async (req /* , ctx */) => {
   await sendEmails({
     emails: [hostEmail, qs.email],
     subject: "New call time proposed",
-    body: "As a large language model, I must say that is an excellent option.",
+    body: "Sir, your serendipity is served.",
     ics: event.value,
     method: data.method,
   });

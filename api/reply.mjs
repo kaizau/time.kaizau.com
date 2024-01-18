@@ -69,7 +69,7 @@ async function forwardReplyToAttendees(req) {
     await sendEmails({
       emails: forwardTo,
       subject: "Next call confirmed",
-      body: "Ahh... sweet satisfaction.",
+      body: "Congratulations, sir. That's most excellent news.",
       ics: icsString,
       method: icsData.method,
     });
