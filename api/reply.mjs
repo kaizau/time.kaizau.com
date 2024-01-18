@@ -8,8 +8,6 @@ export default async (req /* , ctx */) => {
     req.headers.get("content-type").includes("multipart/form-data")
   ) {
     const [fields, files] = await parseForm(req);
-    console.log("Fields:", fields);
-    console.log("Files:", files);
 
     let envelope;
     try {
@@ -24,9 +22,9 @@ export default async (req /* , ctx */) => {
       try {
         for (const event of events) {
           const icsData = ical.sync.parseICS(event.content.toString());
-          console.log("ics", icsData);
-          if (icsData?.organizer?.email === "serendipity@m.kaizau.com") {
-            selectedICS = icsData;
+          const icsEvent = Object.values(icsData)[0];
+          if (icsEvent?.organizer?.val === "MAILTO:serendipity@m.kaizau.com") {
+            selectedICS = icsEvent;
             break;
           }
         }
@@ -34,10 +32,10 @@ export default async (req /* , ctx */) => {
         console.error("Error processing ICS file:", error);
       }
 
-      if (selectedICS && selectedICS.attendees) {
-        const forwardTo = selectedICS.attendees.filter(
-          (attendee) => attendee.email !== envelope.from,
-        );
+      if (selectedICS && selectedICS.attendee) {
+        const forwardTo = selectedICS.attendee
+          .filter((attendee) => attendee.params.EMAIL !== envelope.from)
+          .map((attendee) => attendee.params.EMAIL);
         console.log("fw to", forwardTo);
       }
     }
