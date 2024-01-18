@@ -53,6 +53,8 @@ async function forwardReplyToAttendees(req) {
   }
 
   if (icsData.attendee) {
+    console.log(icsData);
+
     const attendees = Array.isArray(icsData.attendee)
       ? icsData.attendee
       : [icsData.attendee];
