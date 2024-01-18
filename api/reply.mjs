@@ -38,7 +38,9 @@ async function forwardReplyToAttendees(req) {
     try {
       for (const event of events) {
         const icsParsed = ical.sync.parseICS(event.content.toString());
+        console.log(icsParsed);
         const icsEvent = Object.values(icsParsed)[0];
+        console.log(icsEvent);
         if (icsEvent?.organizer?.val === `MAILTO:${organizerEmail}`) {
           icsData = icsEvent;
           icsString = event.content.toString();
