@@ -7,56 +7,67 @@ import { sendEmails } from "./_shared/sendgrid.mjs";
 
 export default async (req /* , ctx */) => {
   if (
-    req.method !== "POST" &&
-    !req.headers.get("content-type").includes("multipart/form-data")
+    req.method === "POST" &&
+    req.headers.get("content-type").includes("multipart/form-data")
   ) {
-    console.log("Ignoring invalid request");
+    await forwardReplyToAttendees(req);
   } else {
-    const [fields, files] = await parseForm(req);
+    console.log(
+      "Ignoring invalid request:",
+      req.method,
+      req.headers.get("content-type"),
+    );
+  }
+  return new Response("🎩");
+};
 
-    let envelope;
+async function forwardReplyToAttendees(req) {
+  const [fields, files] = await parseForm(req);
+  let envelope;
+  try {
+    envelope = JSON.parse(fields.envelope);
+  } catch (error) {
+    console.error("Error parsing email envelope:", error);
+    return;
+  }
+
+  let icsData;
+  let icsString;
+  const events = files.filter((file) => file.filename.endsWith(".ics"));
+  if (events.length) {
     try {
-      envelope = JSON.parse(fields.envelope);
-    } catch (error) {
-      console.error("Error parsing email envelope:", error);
-    }
-
-    let icsData;
-    let icsString;
-    const events = files.filter((file) => file.filename.endsWith(".ics"));
-    if (events.length) {
-      try {
-        for (const event of events) {
-          const icsParsed = ical.sync.parseICS(event.content.toString());
-          const icsEvent = Object.values(icsParsed)[0];
-          if (icsEvent?.organizer?.val === `MAILTO:${organizerEmail}`) {
-            icsData = icsEvent;
-            icsString = event.content.toString();
-            break;
-          }
+      for (const event of events) {
+        const icsParsed = ical.sync.parseICS(event.content.toString());
+        const icsEvent = Object.values(icsParsed)[0];
+        if (icsEvent?.organizer?.val === `MAILTO:${organizerEmail}`) {
+          icsData = icsEvent;
+          icsString = event.content.toString();
+          break;
         }
-      } catch (error) {
-        console.error("Error processing ICS file:", error);
       }
-    }
-
-    if (envelope.from && icsData?.attendee) {
-      const forwardTo = icsData.attendee
-        .filter((attendee) => attendee.params.EMAIL !== envelope.from)
-        .map((attendee) => attendee.params.EMAIL);
-
-      sendEmails({
-        emails: forwardTo,
-        subject: "Next call confirmed",
-        body: "Ahh... sweet satisfaction.",
-        ics: icsString,
-        method: icsData.method,
-      });
+    } catch (error) {
+      console.error("Error processing ICS file:", error);
+      return;
     }
   }
 
-  return new Response("🧞‍♂️");
-};
+  if (envelope.from && icsData?.attendee) {
+    const forwardTo = icsData.attendee
+      .filter((attendee) => attendee.params.EMAIL !== envelope.from)
+      .map((attendee) => attendee.params.EMAIL);
+
+    await sendEmails({
+      emails: forwardTo,
+      subject: "Next call confirmed",
+      body: "Ahh... sweet satisfaction.",
+      ics: icsString,
+      method: icsData.method,
+    });
+  } else {
+    console.error("Unable to extract event data for forwarding");
+    return;
+  }
+}
 
 async function parseForm(req) {
   const fields = {};
