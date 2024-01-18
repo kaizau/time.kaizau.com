@@ -4,6 +4,7 @@ import ical from "node-ical";
 
 import { organizerEmail } from "./_shared/strings.mjs";
 import { sendEmails } from "./_shared/sendgrid.mjs";
+import { ics } from "calendar-link";
 
 export default async (req /* , ctx */) => {
   if (
@@ -23,6 +24,7 @@ export default async (req /* , ctx */) => {
 
 async function forwardReplyToAttendees(req) {
   const [fields, files] = await parseForm(req);
+  console.log(fields);
   let envelope;
   try {
     envelope = JSON.parse(fields.envelope);
@@ -41,7 +43,9 @@ async function forwardReplyToAttendees(req) {
         console.log(icsParsed);
         const icsEvent = Object.values(icsParsed)[0];
         console.log(icsEvent);
-        if (icsEvent?.organizer?.val === `MAILTO:${organizerEmail}`) {
+        if (
+          icsEvent?.organizer?.val?.toLowerCase() === `mailto:${organizerEmail}`
+        ) {
           icsData = icsEvent;
           icsString = event.content.toString();
           break;
@@ -53,21 +57,24 @@ async function forwardReplyToAttendees(req) {
     }
   }
 
-  if (envelope.from && icsData?.attendee) {
-    const forwardTo = icsData.attendee
+  if (envelope.from && icsData.attendee) {
+    const attendees = Array.isArray(icsData.attendee)
+      ? icsData.attendee
+      : [icsData.attendee];
+    const forwardTo = attendees
       .filter((attendee) => attendee.params.EMAIL !== envelope.from)
       .map((attendee) => attendee.params.EMAIL);
 
-    await sendEmails({
-      emails: forwardTo,
-      subject: "Next call confirmed",
-      body: "Ahh... sweet satisfaction.",
-      ics: icsString,
-      method: icsData.method,
-    });
+    console.log("SEND EMAIL!", icsString);
+    // await sendEmails({
+    //   emails: forwardTo,
+    //   subject: "Next call confirmed",
+    //   body: "Ahh... sweet satisfaction.",
+    //   ics: icsString,
+    //   method: icsData.method,
+    // });
   } else {
     console.log("Unable to extract event data for forwarding");
-    console.log(envelope, icsData);
     return;
   }
 }
