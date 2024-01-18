@@ -1,5 +1,6 @@
 import { Readable } from "stream";
 import busboy from "busboy";
+import ical from "node-ical";
 
 export default async (req /* , ctx */) => {
   if (
@@ -7,9 +8,32 @@ export default async (req /* , ctx */) => {
     req.headers.get("content-type").includes("multipart/form-data")
   ) {
     const [fields, files] = await parseForm(req);
-
     console.log("Fields:", fields);
     console.log("Files:", files);
+
+    const events = files.filter((file) => file.filename.endsWith(".ics"));
+    if (fields?.envelope?.from && events.length) {
+      let selectedICS;
+      try {
+        for (const event of events) {
+          const icsData = ical.sync.parseICS(event.content.toString());
+          console.log("ics", icsData);
+          if (icsData?.organizer?.email === "serendipity@m.kaizau.com") {
+            selectedICS = icsData;
+            break;
+          }
+        }
+      } catch (error) {
+        console.error("Error processing ICS file:", error);
+      }
+
+      if (selectedICS && selectedICS.attendees) {
+        const forwardTo = selectedICS.attendees.filter(
+          (attendee) => attendee.email !== envelope.from,
+        );
+        console.log("fw to", forwardTo);
+      }
+    }
   }
 
   return new Response("🧞‍♂️");
@@ -18,7 +42,6 @@ export default async (req /* , ctx */) => {
 async function parseForm(req) {
   const fields = {};
   const files = [];
-
   const headers = Object.fromEntries(req.headers.entries());
   const bb = busboy({ headers });
 

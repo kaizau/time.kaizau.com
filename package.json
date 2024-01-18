@@ -21,6 +21,7 @@
     "date-fns-tz": "2.0.0",
     "htm": "^3.1.1",
     "ics": "^3.7.2",
+    "node-ical": "^0.17.1",
     "preact": "^10.19.3",
     "react-datepicker": "^4.25.0",
     "react-timezone-select": "^3.1.0",
