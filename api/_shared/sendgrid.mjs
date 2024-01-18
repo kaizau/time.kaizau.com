@@ -23,5 +23,5 @@ export function sendEmails({ emails, subject, body, ics, method }) {
   return sgMail
     .send(message)
     .then(() => console.log(`Emails sent to ${emails.join(", ")}`))
-    .catch((error) => console.error(error));
+    .catch((error) => console.error("Error sending emails:", error.message));
 }
