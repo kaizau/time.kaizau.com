@@ -9,16 +9,18 @@
 import { v4 as uuidv4 } from "uuid";
 import rrule from "rrule";
 import ics from "ics";
-import sgMail from "@sendgrid/mail";
 const { RRule } = rrule; // Workaround rrule CJS export
 
-const servicePath = "genie";
-const organizerName = "Serendipity Genie";
-const organizerEmail = "serendipity@m.kaizau.com";
-const hostName = "Kai Zau";
-const hostEmail = "kai@kaizau.com";
+import { sendEmails } from "./_shared/sendgrid.mjs";
+import {
+  servicePath,
+  organizerName,
+  organizerEmail,
+  hostName,
+  hostEmail,
+} from "./_shared/strings.mjs";
+
 const dayOfWeek = ["SU", "MO", "TU", "WE", "TH", "FR", "SA"];
-sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
 export default async (req /* , ctx */) => {
   const url = new URL(req.url);
@@ -37,7 +39,11 @@ export default async (req /* , ctx */) => {
     return new Response("Error creating iCal data", { status: 500 });
   }
 
-  await sendEmails([hostEmail, qs.email], event.value);
+  await sendEmails({
+    emails: [hostEmail, qs.email],
+    ics: event.value,
+    method: data.method,
+  });
 
   // Respond with JSON containing uid and sequence
   return new Response(
@@ -97,26 +103,4 @@ function createEventData(url, qs) {
   data.recurrenceRule = rule.toString().slice(6); // Remove "RRULE:"
 
   return data;
-}
-
-function sendEmails(emails, ics) {
-  const message = {
-    from: { name: organizerName, email: organizerEmail },
-    to: emails,
-    subject: "🗓️🧞‍♂️ A magical calendar invite!",
-    text: "Behold! A magic calendar invite!",
-    html: "<h1>Behold!</h1><p>A magic calendar invite!</p>",
-    attachments: [
-      {
-        type: `text/calendar; method=REQUEST`,
-        filename: "serendipity.ics",
-        content: Buffer.from(ics).toString("base64"),
-        disposition: "attachment",
-      },
-    ],
-  };
-  return sgMail
-    .send(message)
-    .then(() => console.log(`Emails sent to ${emails.join(", ")}`))
-    .catch((error) => console.error(error));
 }

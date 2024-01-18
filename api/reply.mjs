@@ -2,6 +2,9 @@ import { Readable } from "stream";
 import busboy from "busboy";
 import ical from "node-ical";
 
+import { organizerEmail } from "./_shared/strings.mjs";
+import { sendEmails } from "./_shared/sendgrid.mjs";
+
 export default async (req /* , ctx */) => {
   if (
     req.method === "POST" &&
@@ -15,29 +18,37 @@ export default async (req /* , ctx */) => {
     } catch (error) {
       console.error("Error parsing email envelope:", error);
     }
-    const events = files.filter((file) => file.filename.endsWith(".ics"));
 
-    if (envelope.from && events.length) {
-      let selectedICS;
+    let icsData;
+    let icsString;
+    const events = files.filter((file) => file.filename.endsWith(".ics"));
+    if (events.length) {
       try {
         for (const event of events) {
-          const icsData = ical.sync.parseICS(event.content.toString());
-          const icsEvent = Object.values(icsData)[0];
-          if (icsEvent?.organizer?.val === "MAILTO:serendipity@m.kaizau.com") {
-            selectedICS = icsEvent;
+          const icsParsed = ical.sync.parseICS(event.content.toString());
+          const icsEvent = Object.values(icsParsed)[0];
+          if (icsEvent?.organizer?.val === `MAILTO:${organizerEmail}`) {
+            icsData = icsEvent;
+            icsString = event.content.toString();
             break;
           }
         }
       } catch (error) {
         console.error("Error processing ICS file:", error);
       }
+    }
 
-      if (selectedICS && selectedICS.attendee) {
-        const forwardTo = selectedICS.attendee
-          .filter((attendee) => attendee.params.EMAIL !== envelope.from)
-          .map((attendee) => attendee.params.EMAIL);
-        console.log("fw to", forwardTo);
-      }
+    if (envelope.from && icsData?.attendee) {
+      const forwardTo = icsData.attendee
+        .filter((attendee) => attendee.params.EMAIL !== envelope.from)
+        .map((attendee) => attendee.params.EMAIL);
+
+      sendEmails({
+        emails: forwardTo,
+        ics: icsString,
+        method: icsData.method,
+        overrides: {},
+      });
     }
   }
 
