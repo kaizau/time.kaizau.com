@@ -2,10 +2,15 @@ import { Readable } from "stream";
 import busboy from "busboy";
 
 export default async (req /* , ctx */) => {
-  const [fields, files] = await parseForm(req);
+  if (
+    req.method === "POST" &&
+    req.headers.get("content-type").includes("multipart/form-data")
+  ) {
+    const [fields, files] = await parseForm(req);
 
-  console.log("Fields:", fields);
-  console.log("Files:", files);
+    console.log("Fields:", fields);
+    console.log("Files:", files);
+  }
 
   return new Response("🧞‍♂️");
 };
