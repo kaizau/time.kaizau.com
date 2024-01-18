@@ -24,12 +24,9 @@ export default async (req /* , ctx */) => {
 
 async function forwardReplyToAttendees(req) {
   const [fields, files] = await parseForm(req);
-  console.log(fields);
-  let envelope;
-  try {
-    envelope = JSON.parse(fields.envelope);
-  } catch (error) {
-    console.error("Error parsing email envelope:", error);
+
+  if (!fields.from) {
+    console.log("Ignoring non-Sendgrid request");
     return;
   }
 
@@ -40,9 +37,7 @@ async function forwardReplyToAttendees(req) {
     try {
       for (const event of events) {
         const icsParsed = ical.sync.parseICS(event.content.toString());
-        console.log(icsParsed);
         const icsEvent = Object.values(icsParsed)[0];
-        console.log(icsEvent);
         if (
           icsEvent?.organizer?.val?.toLowerCase() === `mailto:${organizerEmail}`
         ) {
@@ -57,22 +52,23 @@ async function forwardReplyToAttendees(req) {
     }
   }
 
-  if (envelope.from && icsData.attendee) {
+  if (icsData.attendee) {
     const attendees = Array.isArray(icsData.attendee)
       ? icsData.attendee
       : [icsData.attendee];
+    const senderEmail = fields.from.match(/<(.+)>/);
+    const sender = senderEmail ? senderEmail[1] : fields.from;
     const forwardTo = attendees
-      .filter((attendee) => attendee.params.EMAIL !== envelope.from)
-      .map((attendee) => attendee.params.EMAIL);
+      .map((attendee) => attendee.val.replace(/mailto:/i, ""))
+      .filter((attendee) => attendee !== sender);
 
-    console.log("SEND EMAIL!", icsString);
-    // await sendEmails({
-    //   emails: forwardTo,
-    //   subject: "Next call confirmed",
-    //   body: "Ahh... sweet satisfaction.",
-    //   ics: icsString,
-    //   method: icsData.method,
-    // });
+    await sendEmails({
+      emails: forwardTo,
+      subject: "Next call confirmed",
+      body: "Ahh... sweet satisfaction.",
+      ics: icsString,
+      method: icsData.method,
+    });
   } else {
     console.log("Unable to extract event data for forwarding");
     return;
