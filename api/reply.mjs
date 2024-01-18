@@ -11,8 +11,15 @@ export default async (req /* , ctx */) => {
     console.log("Fields:", fields);
     console.log("Files:", files);
 
+    let envelope;
+    try {
+      envelope = JSON.parse(fields.envelope);
+    } catch (error) {
+      console.error("Error parsing email envelope:", error);
+    }
     const events = files.filter((file) => file.filename.endsWith(".ics"));
-    if (fields?.envelope?.from && events.length) {
+
+    if (envelope.from && events.length) {
       let selectedICS;
       try {
         for (const event of events) {
