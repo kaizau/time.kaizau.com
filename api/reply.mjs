@@ -64,7 +64,8 @@ async function forwardReplyToAttendees(req) {
       method: icsData.method,
     });
   } else {
-    console.error("Unable to extract event data for forwarding");
+    console.log("Unable to extract event data for forwarding");
+    console.log(envelope, icsData);
     return;
   }
 }
