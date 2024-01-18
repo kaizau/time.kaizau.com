@@ -45,9 +45,10 @@ export default async (req /* , ctx */) => {
 
       sendEmails({
         emails: forwardTo,
+        subject: "Next call confirmed",
+        body: "Ahh... sweet satisfaction.",
         ics: icsString,
         method: icsData.method,
-        overrides: {},
       });
     }
   }

@@ -3,13 +3,13 @@ import { organizerName, organizerEmail } from "./strings.mjs";
 
 sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
-export function sendEmails({ emails, ics, method, overrides }) {
+export function sendEmails({ emails, subject, body, ics, method }) {
   let message = {
     from: { name: organizerName, email: organizerEmail },
     to: emails,
-    subject: "🗓️🧞‍♂️ A magical calendar invite!",
-    text: "Behold! A magic calendar invite!",
-    html: "<h1>Behold!</h1><p>A magic calendar invite!</p>",
+    subject: `🎩 ${subject}`,
+    text: body,
+    html: `<p>${body}</p>`,
     attachments: [
       {
         type: `text/calendar; method=${method}`,
@@ -19,10 +19,6 @@ export function sendEmails({ emails, ics, method, overrides }) {
       },
     ],
   };
-
-  if (overrides) {
-    message = { ...message, ...overrides };
-  }
 
   return sgMail
     .send(message)

@@ -19,7 +19,7 @@ $form.addEventListener("submit", (e) => {
   delete data.date;
   delete data.time;
 
-  const url = `/api/genie?${new URLSearchParams(data).toString()}`;
+  const url = `/api/butler?${new URLSearchParams(data).toString()}`;
 
   fetch(url)
     .then((res) => res.json())
