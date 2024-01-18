@@ -9,7 +9,6 @@ module.exports = {
     es2020: true,
   },
   rules: {
-    "no-console": "warn",
     "no-unused-vars": "warn",
     "no-else-return": "off",
   },

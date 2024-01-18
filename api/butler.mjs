@@ -34,7 +34,6 @@ export default async (req /* , ctx */) => {
 
   const event = ics.createEvent(data);
   if (event.error) {
-    // eslint-disable-next-line no-console
     console.error(event.error);
     return new Response("Error creating iCal data", { status: 500 });
   }

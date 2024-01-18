@@ -7,9 +7,11 @@ import { sendEmails } from "./_shared/sendgrid.mjs";
 
 export default async (req /* , ctx */) => {
   if (
-    req.method === "POST" &&
-    req.headers.get("content-type").includes("multipart/form-data")
+    req.method !== "POST" &&
+    !req.headers.get("content-type").includes("multipart/form-data")
   ) {
+    console.log("Ignoring invalid request");
+  } else {
     const [fields, files] = await parseForm(req);
 
     let envelope;
