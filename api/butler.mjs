@@ -80,11 +80,13 @@ function createEventData(url, qs) {
     {
       name: hostName,
       email: hostEmail,
+      role: "REQ-PARTICIPANT",
       rsvp: true,
     },
     {
       name: qs.email,
       email: qs.email,
+      role: "REQ-PARTICIPANT",
       rsvp: true,
     },
   ];
