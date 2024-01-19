@@ -56,25 +56,27 @@ export default async (req /* , ctx */) => {
 
 function createEventData(url, qs) {
   const data = {};
-  data.uid = qs.uid || uuidv4();
-  data.sequence = qs.sequence ? parseInt(qs.sequence, 10) + 1 : 1;
-  data.method = "REQUEST";
+  const uid = qs.uid || uuidv4();
+  const sequence = qs.sequence ? parseInt(qs.sequence, 10) + 1 : 1;
 
   // Cache essential state into description. This not only populates the reschedule
   // form, but also provides reply.mjs with both attendee emails.
   const next = {
-    uid: data.uid,
-    sequence: data.sequence,
+    uid,
+    sequence,
     title: qs.title,
     ts: qs.ts,
     interval: qs.interval,
     email: qs.email,
-    host: hostEmail,
+    host: hostEmail, // required by reply.mjs
   };
   data.description = `${descriptionText}${url.origin}/${servicePath}?${new URLSearchParams(next).toString()}`;
 
   // Format iCal values
   data.productId = "com.kaizau.time";
+  data.uid = `${uid}@${data.productId}`;
+  data.sequence = sequence;
+  data.method = "REQUEST";
   data.organizer = { name: organizerName, email: organizerEmail };
   data.attendees = [
     {
