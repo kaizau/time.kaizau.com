@@ -79,6 +79,10 @@ async function forwardReplyToAttendees(req) {
     return console.error("Unable to determine forwarding address");
   }
 
+  // TODO Create updated ICS to forward because Fastmail ICS format
+  // doesn't seem to show up on Google?
+  // Parse partstat from update, update the correct attendee, then send
+
   // Forward ICS to non-sender attendee
   await sendEmails({
     emails: forwardTo,

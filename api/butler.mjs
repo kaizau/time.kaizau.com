@@ -77,6 +77,7 @@ function createEventData(url, qs) {
       email: hostEmail,
       cutype: "INDIVIDUAL",
       role: "REQ-PARTICIPANT",
+      partstat: "NEEDS-ACTION",
       rsvp: true,
     },
     {
@@ -84,6 +85,7 @@ function createEventData(url, qs) {
       email: qs.email,
       cutype: "INDIVIDUAL",
       role: "REQ-PARTICIPANT",
+      partstat: "NEEDS-ACTION",
       rsvp: true,
     },
   ];
