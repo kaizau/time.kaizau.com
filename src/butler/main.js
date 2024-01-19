@@ -24,13 +24,14 @@ $form.addEventListener("submit", (e) => {
   fetch(url)
     .then((res) => res.json())
     .then((res) => {
-      // Update uid and sequence
+      // Update uid
       data.uid = res.uid;
-      data.sequence = res.sequence;
+      $form.querySelector("[name=uid]").value = data.uid;
+
+      // Update URL
       const query = new URLSearchParams(data).toString();
       window.history.pushState({}, "", `?${query}`);
-      $form.querySelector("[name=uid]").value = data.uid;
-      $form.querySelector("[name=sequence]").value = data.sequence;
+
       // TODO Show confirmation
     })
     .catch((error) => {

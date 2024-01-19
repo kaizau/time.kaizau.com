@@ -2,10 +2,6 @@
 // - Creates an iCal event with a self-editing link
 // - Sends the event to attendees by email
 
-// TODO
-// Maybe increment sequence based on time? Would otherwise need to track this in URL,
-// but calendar replies may also bump the number.
-
 import { v4 as uuidv4 } from "uuid";
 import rrule from "rrule";
 import ics from "ics";
@@ -47,23 +43,20 @@ export default async (req /* , ctx */) => {
     method: data.method,
   });
 
-  // Respond with JSON containing uid and sequence
-  return new Response(
-    JSON.stringify({ uid: data.uid, sequence: data.sequence }),
-    { headers: { "Content-Type": "application/json" } },
-  );
+  // Respond with UID (without suffix)
+  return new Response(JSON.stringify({ uid: data.uid.split("@")[0] }), {
+    headers: { "Content-Type": "application/json" },
+  });
 };
 
 function createEventData(url, qs) {
   const data = {};
   const uid = qs.uid || uuidv4();
-  const sequence = qs.sequence ? parseInt(qs.sequence, 10) + 1 : 1;
 
   // Cache essential state into description. This not only populates the reschedule
   // form, but also provides reply.mjs with both attendee emails.
   const next = {
     uid,
-    sequence,
     title: qs.title,
     ts: qs.ts,
     interval: qs.interval,
@@ -75,7 +68,7 @@ function createEventData(url, qs) {
   // Format iCal values
   data.productId = "com.kaizau.time";
   data.uid = `${uid}@${data.productId}`;
-  data.sequence = sequence;
+  data.sequence = Date.now(); // Always incrementing
   data.method = "REQUEST";
   data.organizer = { name: organizerName, email: organizerEmail };
   data.attendees = [
