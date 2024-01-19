@@ -18,6 +18,7 @@ import {
   organizerEmail,
   hostName,
   hostEmail,
+  descriptionText,
 } from "./_shared/strings.mjs";
 
 const dayOfWeek = ["SU", "MO", "TU", "WE", "TH", "FR", "SA"];
@@ -59,7 +60,8 @@ function createEventData(url, qs) {
   data.sequence = qs.sequence ? parseInt(qs.sequence, 10) + 1 : 1;
   data.method = "REQUEST";
 
-  // Cache essential state into description
+  // Cache essential state into description. This not only populates the reschedule
+  // form, but also provides reply.mjs with both attendee emails.
   const next = {
     uid: data.uid,
     sequence: data.sequence,
@@ -67,8 +69,9 @@ function createEventData(url, qs) {
     ts: qs.ts,
     interval: qs.interval,
     email: qs.email,
+    host: hostEmail,
   };
-  data.description = `Reschedule: ${url.origin}/${servicePath}?${new URLSearchParams(next).toString()}`;
+  data.description = `${descriptionText}${url.origin}/${servicePath}?${new URLSearchParams(next).toString()}`;
 
   // Format iCal values
   data.productId = "com.kaizau.time";

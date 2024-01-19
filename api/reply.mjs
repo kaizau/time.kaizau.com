@@ -2,9 +2,8 @@ import { Readable } from "stream";
 import busboy from "busboy";
 import ical from "node-ical";
 
-import { organizerEmail } from "./_shared/strings.mjs";
+import { descriptionText, organizerEmail } from "./_shared/strings.mjs";
 import { sendEmails } from "./_shared/sendgrid.mjs";
-import { ics } from "calendar-link";
 
 export default async (req /* , ctx */) => {
   if (
@@ -25,58 +24,69 @@ export default async (req /* , ctx */) => {
 async function forwardReplyToAttendees(req) {
   const [fields, files] = await parseForm(req);
 
+  // TODO get sender the ICS Reply instead?
   if (!fields.from) {
-    console.log("Ignoring non-Sendgrid request");
+    console.log("Ignoring non-email request:", fields);
     return;
   }
 
+  // Filter for ICS attachments
+  const events = files.filter((file) => file.filename.endsWith(".ics"));
+  if (!events.length) {
+    return console.log("Ignoring request with no ICS attachments");
+  }
+
+  // Parse ICS attachments
   let icsData;
   let icsString;
-  const events = files.filter((file) => file.filename.endsWith(".ics"));
-  if (events.length) {
-    try {
-      for (const event of events) {
-        const icsParsed = ical.sync.parseICS(event.content.toString());
-        const icsEvent = Object.values(icsParsed)[0];
-        if (
-          icsEvent?.organizer?.val?.toLowerCase() === `mailto:${organizerEmail}`
-        ) {
-          icsData = icsEvent;
-          icsString = event.content.toString();
-          break;
-        }
+  try {
+    for (const event of events) {
+      const icsParsed = ical.sync.parseICS(event.content.toString());
+      const icsEvent = Object.values(icsParsed)[0];
+      if (
+        icsEvent?.organizer?.val?.toLowerCase() === `mailto:${organizerEmail}`
+      ) {
+        icsData = icsEvent;
+        icsString = event.content.toString();
+        break;
       }
-    } catch (error) {
-      console.error("Error processing ICS file:", error);
-      return;
     }
+  } catch (error) {
+    return console.error("Error processing ICS file:", error);
   }
 
-  if (icsData.attendee) {
-    console.log(icsData);
-
-    const attendees = Array.isArray(icsData.attendee)
-      ? icsData.attendee
-      : [icsData.attendee];
-    const senderEmail = fields.from.match(/<(.+)>/);
-    const sender = senderEmail ? senderEmail[1] : fields.from;
-    const forwardTo = attendees
-      .map((attendee) => attendee.val.replace(/mailto:/i, ""))
-      .filter((attendee) => attendee !== sender);
-
-    console.log(attendees, sender, forwardTo);
-
-    await sendEmails({
-      emails: forwardTo,
-      subject: "Next call confirmed",
-      body: "Congratulations, sir. That's most excellent news.",
-      ics: icsString,
-      method: icsData.method,
-    });
-  } else {
-    console.log("Unable to extract event data for forwarding");
-    return;
+  if (icsData.method !== "REPLY" || !icsData.description) {
+    return console.log("Ignoring invalid ICS");
   }
+
+  // Extract attendees from description URL
+  const attendees = [];
+  try {
+    const url = new URL(
+      icsData.description.split(descriptionText).pop().trim(),
+    );
+    attendees.push(url.searchParams.get("host"));
+    attendees.push(url.searchParams.get("email"));
+  } catch (error) {
+    return console.error("Error parsing attendees from description:", error);
+  }
+
+  // Determine which attendee to forward ICS to
+  const senderEmail = fields.from.match(/<(.+)>/);
+  const sender = senderEmail ? senderEmail[1] : fields.from;
+  const forwardTo = attendees.filter((attendee) => attendee !== sender);
+  if (!forwardTo.length) {
+    return console.error("Unable to determine forwarding address");
+  }
+
+  // Forward ICS to non-sender attendee
+  await sendEmails({
+    emails: forwardTo,
+    subject: "Next call confirmed",
+    body: "Congratulations, sir. That's most excellent news.",
+    ics: icsString,
+    method: icsData.method,
+  });
 }
 
 async function parseForm(req) {
