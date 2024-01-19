@@ -82,12 +82,14 @@ function createEventData(url, qs) {
     {
       name: hostName,
       email: hostEmail,
+      cutype: "INDIVIDUAL",
       role: "REQ-PARTICIPANT",
       rsvp: true,
     },
     {
       name: qs.email,
       email: qs.email,
+      cutype: "INDIVIDUAL",
       role: "REQ-PARTICIPANT",
       rsvp: true,
     },
