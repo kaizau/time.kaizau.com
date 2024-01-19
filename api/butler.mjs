@@ -68,7 +68,7 @@ function createEventData(url, qs) {
   // Format iCal values
   data.productId = "com.kaizau.time";
   data.uid = `${uid}@${data.productId}`;
-  data.sequence = Date.now(); // Always incrementing
+  data.sequence = Math.round(Date.now() / 1000); // increment every second
   data.method = "REQUEST";
   data.organizer = { name: organizerName, email: organizerEmail };
   data.attendees = [
