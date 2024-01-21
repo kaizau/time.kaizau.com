@@ -70,22 +70,8 @@ async function forwardReplyToAttendees(req) {
     return console.error("Error parsing description URL:", error);
   }
 
-  return console.log(qs);
-
-  // Determine which attendee to forward ICS to
-  // TODO In future, forward to all
-  const attendees = [];
-  attendees.push(qs.host);
-  attendees.push(qs.email);
-  const senderEmail = fields.from.match(/<(.+)>/);
-  const sender = senderEmail ? senderEmail[1] : fields.from;
-  const forwardTo = attendees.filter((attendee) => attendee !== sender);
-  if (!forwardTo.length) {
-    return console.error("Unable to determine forwarding address");
-  }
-
   // Prepare new ICS
-  // Fastmail reply format doesn't show up on Google, so we need to prepare
+  // Calendar reply formats aren't always compatible, so we create
   // a new update. Assumes that only a single attendee is included.
   let replyStatus;
   let replyEmail;
@@ -95,6 +81,7 @@ async function forwardReplyToAttendees(req) {
   } catch (error) {
     return console.error("Unable to parse reply status");
   }
+  console.log(replyEmail, replyStatus);
 
   // Construct new ICS
   const data = createEventData({ url, ...qs });
@@ -102,6 +89,8 @@ async function forwardReplyToAttendees(req) {
     (attendee) => attendee.email === replyEmail,
   );
   replying.partstat = replyStatus;
+  console.log(data);
+
   const icsUpdate = ics.createEvent(data);
   if (icsUpdate.error) {
     return console.error("Unable to create updated ICS:", icsUpdate.error);
@@ -110,11 +99,10 @@ async function forwardReplyToAttendees(req) {
   // Forward ICS to non-sender attendee
   // TODO Handle declines
   await sendEmails({
-    emails: forwardTo,
+    emails: data.attendees.map((a) => a.email),
     subject: "Next call confirmed",
     body: "Congratulations, sir. That's most excellent news.",
     ics: icsUpdate.value,
-    method: icsData.method,
   });
 }
 
