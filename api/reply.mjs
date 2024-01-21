@@ -1,9 +1,11 @@
 import { Readable } from "stream";
 import busboy from "busboy";
 import ical from "node-ical";
+import ics from "ics";
 
 import { descriptionText, organizerEmail } from "./_shared/strings.mjs";
 import { sendEmails } from "./_shared/sendgrid.mjs";
+import { createEventData } from "./_shared/ical.mjs";
 
 export default async (req /* , ctx */) => {
   if (
@@ -24,7 +26,7 @@ export default async (req /* , ctx */) => {
 async function forwardReplyToAttendees(req) {
   const [fields, files] = await parseForm(req);
 
-  // TODO get sender the ICS Reply instead?
+  // Filter for SendGrid webhook
   if (!fields.from) {
     console.log("Ignoring non-email request:", fields);
     return;
@@ -38,7 +40,6 @@ async function forwardReplyToAttendees(req) {
 
   // Parse ICS attachments
   let icsData;
-  let icsString;
   try {
     for (const event of events) {
       const icsParsed = ical.sync.parseICS(event.content.toString());
@@ -47,7 +48,6 @@ async function forwardReplyToAttendees(req) {
         icsEvent?.organizer?.val?.toLowerCase() === `mailto:${organizerEmail}`
       ) {
         icsData = icsEvent;
-        icsString = event.content.toString();
         break;
       }
     }
@@ -55,23 +55,25 @@ async function forwardReplyToAttendees(req) {
     return console.error("Error processing ICS file:", error);
   }
 
+  // Skip invalid ICS files
   if (icsData.method !== "REPLY" || !icsData.description) {
     return console.log("Ignoring invalid ICS");
   }
 
-  // Extract attendees from description URL
-  const attendees = [];
+  // Extract data from ICS description URL
+  let url;
+  let qs;
   try {
-    const url = new URL(
-      icsData.description.split(descriptionText).pop().trim(),
-    );
-    attendees.push(url.searchParams.get("host"));
-    attendees.push(url.searchParams.get("email"));
+    url = new URL(icsData.description.split(descriptionText).pop().trim());
+    qs = Object.fromEntries(url.searchParams.entries());
   } catch (error) {
-    return console.error("Error parsing attendees from description:", error);
+    return console.error("Error parsing description URL:", error);
   }
 
   // Determine which attendee to forward ICS to
+  const attendees = [];
+  attendees.push(qs.host);
+  attendees.push(qs.email);
   const senderEmail = fields.from.match(/<(.+)>/);
   const sender = senderEmail ? senderEmail[1] : fields.from;
   const forwardTo = attendees.filter((attendee) => attendee !== sender);
@@ -79,16 +81,37 @@ async function forwardReplyToAttendees(req) {
     return console.error("Unable to determine forwarding address");
   }
 
-  // TODO Create updated ICS to forward because Fastmail ICS format
-  // doesn't seem to show up on Google?
-  // Parse partstat from update, update the correct attendee, then send
+  // Prepare new ICS
+  // Fastmail reply format doesn't show up on Google, so we need to prepare
+  // a new update. Assumes that only a single attendee is included.
+  let replyStatus;
+  let replyEmail;
+  try {
+    const { PARTSTAT, EMAIL } = icsData.attendee.params;
+    replyStatus = PARTSTAT;
+    replyEmail = EMAIL;
+  } catch (error) {
+    return console.error("Unable to parse reply status");
+  }
+
+  // Construct new ICS
+  const data = createEventData({ url, ...qs });
+  const replying = data.attendees.find(
+    (attendee) => attendee.email === replyEmail,
+  );
+  replying.partstat = replyStatus;
+  const icsUpdate = ics.createEvent(data);
+  if (icsUpdate.error) {
+    return console.error("Unable to create updated ICS:", icsUpdate.error);
+  }
 
   // Forward ICS to non-sender attendee
+  // TODO Handle declines
   await sendEmails({
     emails: forwardTo,
     subject: "Next call confirmed",
     body: "Congratulations, sir. That's most excellent news.",
-    ics: icsString,
+    ics: icsUpdate.value,
     method: icsData.method,
   });
 }
