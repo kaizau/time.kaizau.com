@@ -3,7 +3,7 @@ import { organizerName, organizerEmail } from "./strings.mjs";
 
 sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
-export function sendEmails({ emails, subject, body, ics, method }) {
+export function sendEmails({ emails, subject, body, ics }) {
   let message = {
     from: { name: organizerName, email: organizerEmail },
     to: emails,
@@ -12,7 +12,7 @@ export function sendEmails({ emails, subject, body, ics, method }) {
     html: `<p>${body}</p>`,
     attachments: [
       {
-        type: `text/calendar; method=${method}`,
+        type: `text/calendar; method=REQUEST`,
         filename: "serendipity.ics",
         content: Buffer.from(ics).toString("base64"),
         disposition: "attachment",

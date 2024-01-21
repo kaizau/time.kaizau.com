@@ -14,13 +14,23 @@ $form.addEventListener("submit", (e) => {
   const entries = new FormData($form).entries();
   const data = Object.fromEntries(entries);
 
+  // Normalize attendee email spacing
+  data.attendees
+    .split(",")
+    .map((a) => a.trim())
+    .join(", ");
+
   // Serialize local time to UTC timestamp
   data.ts = new Date(`${data.date} ${data.time}`).getTime();
   delete data.date;
   delete data.time;
 
-  const url = `/api/butler?${new URLSearchParams(data).toString()}`;
+  // Delete keys with no value
+  Object.keys(data).forEach((key) => {
+    if (!data[key]) delete data[key];
+  });
 
+  const url = `/api/butler?${new URLSearchParams(data).toString()}`;
   fetch(url)
     .then((res) => res.json())
     .then((res) => {

@@ -5,13 +5,12 @@
 import ics from "ics";
 import { createEventData } from "./_shared/ical.mjs";
 import { sendEmails } from "./_shared/sendgrid.mjs";
-import { hostEmail } from "./_shared/strings.mjs";
 
 export default async (req /* , ctx */) => {
   const url = new URL(req.url);
   const qs = Object.fromEntries(url.searchParams.entries());
 
-  if (!qs.title || !qs.ts || !qs.interval || !qs.email) {
+  if (!qs.title || !qs.ts || !qs.interval || !qs.attendees) {
     return Response("Missing required parameters", { status: 400 });
   }
 
@@ -24,11 +23,10 @@ export default async (req /* , ctx */) => {
   }
 
   await sendEmails({
-    emails: [hostEmail, qs.email],
+    emails: data.attendees.map((attendee) => attendee.email),
     subject: "New call time proposed",
     body: "Sir, your serendipity is served.",
     ics: event.value,
-    method: data.method,
   });
 
   // Respond with UID (without suffix)

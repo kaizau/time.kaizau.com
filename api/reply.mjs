@@ -70,6 +70,8 @@ async function forwardReplyToAttendees(req) {
     return console.error("Error parsing description URL:", error);
   }
 
+  return console.log(qs);
+
   // Determine which attendee to forward ICS to
   // TODO In future, forward to all
   const attendees = [];

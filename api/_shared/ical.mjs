@@ -5,56 +5,46 @@ import {
   servicePath,
   organizerName,
   organizerEmail,
-  hostName,
-  hostEmail,
   descriptionText,
 } from "./strings.mjs";
 
 const dayOfWeek = ["SU", "MO", "TU", "WE", "TH", "FR", "SA"];
 
-export function createEventData({ url, uid, title, ts, interval, email }) {
+export function createEventData({
+  url,
+  uid,
+  title,
+  ts,
+  interval,
+  attendees,
+  rsvp,
+}) {
   const data = {};
-  uid = uid || uuidv4();
+  const baseUid = uid || uuidv4();
 
-  // Cache essential state into description. This not only populates the reschedule
-  // form, but also provides reply.mjs with both attendee emails.
-  const next = {
-    uid,
-    title,
-    ts,
-    interval,
-    email,
-    host: hostEmail, // required by reply.mjs
-  };
-  data.description = `${descriptionText}${url.origin}/${servicePath}?${new URLSearchParams(next).toString()}`;
-
-  // Format iCal values
+  // Base iCal values
   data.productId = "com.kaizau.time";
-  data.uid = `${uid}@${data.productId}`;
+  data.uid = `${baseUid}@${data.productId}`;
   data.sequence = Math.round(Date.now() / 1000); // increment every second
   data.method = "REQUEST";
   data.title = title;
   data.organizer = { name: organizerName, email: organizerEmail };
-  data.attendees = [
-    {
-      name: hostName,
-      email: hostEmail,
-      cutype: "INDIVIDUAL",
-      role: "REQ-PARTICIPANT",
-      partstat: "NEEDS-ACTION",
-      rsvp: true,
-    },
-    {
-      name: email,
-      email,
-      cutype: "INDIVIDUAL",
-      role: "REQ-PARTICIPANT",
-      partstat: "NEEDS-ACTION",
-      rsvp: true,
-    },
-  ];
 
-  // Parse start, duration, repeat
+  // Attendees and RSVP
+  const rsvpState = rsvp ? rsvp.split(", ") : [];
+  data.attendees = attendees.split(", ").map((attendee, index) => {
+    const partstat = rsvpState[index] || "NEEDS-ACTION";
+    return {
+      name: attendee,
+      email: attendee,
+      cutype: "INDIVIDUAL",
+      role: "REQ-PARTICIPANT",
+      partstat,
+      rsvp: true,
+    };
+  });
+
+  // Start, duration, repeat
   data.startInputType = "utc";
   const date = new Date(parseInt(ts, 10));
   data.start = date
@@ -69,6 +59,18 @@ export function createEventData({ url, uid, title, ts, interval, email }) {
     byweekday: RRule[dayOfWeek[date.getDay()]],
   });
   data.recurrenceRule = rule.toString().slice(6); // Remove "RRULE:"
+
+  // Cache essential state into description. This not only populates the reschedule
+  // form, but also provides reply.mjs with attendee emails.
+  const next = {
+    uid: baseUid,
+    title,
+    ts,
+    interval,
+    attendees,
+  };
+  if (rsvp) next.rsvp = rsvp;
+  data.description = `${descriptionText}${url.origin}/${servicePath}?${new URLSearchParams(next).toString()}`;
 
   return data;
 }
