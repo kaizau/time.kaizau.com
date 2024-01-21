@@ -71,6 +71,7 @@ async function forwardReplyToAttendees(req) {
   }
 
   // Determine which attendee to forward ICS to
+  // TODO In future, forward to all
   const attendees = [];
   attendees.push(qs.host);
   attendees.push(qs.email);
@@ -87,9 +88,8 @@ async function forwardReplyToAttendees(req) {
   let replyStatus;
   let replyEmail;
   try {
-    const { PARTSTAT, EMAIL } = icsData.attendee.params;
-    replyStatus = PARTSTAT;
-    replyEmail = EMAIL;
+    replyStatus = icsData.attendee.params.PARTSTAT;
+    replyEmail = icsData.attendee.val.split(":")[1];
   } catch (error) {
     return console.error("Unable to parse reply status");
   }
