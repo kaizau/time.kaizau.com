@@ -67,7 +67,7 @@ async function forwardReplyToAttendees(req) {
   }
 
   // Valid reply email determined at this point
-  console.log("Inbound reply:", fields);
+  // console.log("Inbound reply:", fields);
   console.log("Reply ICS:", replyData);
 
   // Apply reply to attendee update
@@ -84,6 +84,7 @@ async function forwardReplyToAttendees(req) {
   // Handle status based on attendees
   let subject = "Next call updated";
   let body = "One step closer to greatness.";
+  let method;
   const allDeclined = updateData.attendees.every(
     (attendee) => attendee.partstat === "DECLINED",
   );
@@ -94,6 +95,7 @@ async function forwardReplyToAttendees(req) {
     updateData.status = "CANCELLED";
     subject = "Next call cancelled";
     body = "Got ahead and schedule another one.";
+    method = "CANCEL";
     console.log("All attendees declined");
   } else if (allAccepted) {
     updateData.status = "CONFIRMED";
@@ -109,7 +111,7 @@ async function forwardReplyToAttendees(req) {
   // Forward ICS to non-sender attendee
   const emails = updateData.attendees.map((attendee) => attendee.email);
   const attachments = createFiles(updateData);
-  await sendEmails({ emails, attachments, subject, body });
+  await sendEmails({ emails, attachments, subject, body, method });
 }
 
 async function parseForm(req) {
