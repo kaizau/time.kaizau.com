@@ -25,6 +25,9 @@ function bindSubmit($form) {
     e.preventDefault();
     const data = formToData($form);
 
+    // Disable after we have the data
+    $form.querySelector("fieldset").disabled = true;
+
     fetch("/api/butler", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -40,10 +43,25 @@ function bindSubmit($form) {
         const query = new URLSearchParams(data).toString();
         window.history.pushState({}, "", `?${query}`);
 
-        // TODO Show confirmation
+        // Show confirmation
+        const $confirm = document.createElement("div");
+        $confirm.className =
+          "bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative";
+        $confirm.role = "alert";
+        $confirm.innerHTML = `
+          <div class="font-bold text-lg mb-1">Sent!</div>
+          <p>The calendar invite contains a link for rescheduling at any time.</p>`;
+        $form.replaceWith($confirm);
       })
-      .catch((error) => {
-        console.error(error);
+      .catch(() => {
+        const $confirm = document.createElement("div");
+        $confirm.className =
+          "bg-yellow-100 border border-yellow-400 text-yellow-700 px-4 py-3 rounded relative";
+        $confirm.role = "alert";
+        $confirm.innerHTML = `
+          <div class="font-bold text-lg mb-1">Uh-oh.</div>
+          <p>That didn't work as expected. Let Kai know about this.</p>`;
+        $form.replaceWith($confirm);
       });
   });
 }
