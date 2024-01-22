@@ -1,11 +1,10 @@
 import { Readable } from "stream";
 import busboy from "busboy";
 import ical from "node-ical";
-import ics from "ics";
 
 import { descriptionText, organizerEmail } from "./_shared/strings.mjs";
 import { sendEmails } from "./_shared/sendgrid.mjs";
-import { createEventData } from "./_shared/ical.mjs";
+import { urlToEvent, createFiles, updateRsvp } from "./_shared/ical.mjs";
 
 export default async (req /* , ctx */) => {
   if (
@@ -33,21 +32,19 @@ async function forwardReplyToAttendees(req) {
   }
 
   // Filter for ICS attachments
-  const events = files.filter((file) => file.filename.endsWith(".ics"));
-  if (!events.length) {
+  const icsFiles = files.filter((file) => file.filename.endsWith(".ics"));
+  if (!icsFiles.length) {
     return console.log("Ignoring request with no ICS attachments");
   }
 
   // Parse ICS attachments
-  let icsData;
+  let replyData;
   try {
-    for (const event of events) {
-      const icsParsed = ical.sync.parseICS(event.content.toString());
-      const icsEvent = Object.values(icsParsed)[0];
-      if (
-        icsEvent?.organizer?.val?.toLowerCase() === `mailto:${organizerEmail}`
-      ) {
-        icsData = icsEvent;
+    for (const icsFile of icsFiles) {
+      const parsed = ical.sync.parseICS(icsFile.content.toString());
+      const event = Object.values(parsed)[0];
+      if (event?.organizer?.val?.toLowerCase() === `mailto:${organizerEmail}`) {
+        replyData = event;
         break;
       }
     }
@@ -56,53 +53,45 @@ async function forwardReplyToAttendees(req) {
   }
 
   // Skip invalid ICS files
-  if (icsData.method !== "REPLY" || !icsData.description) {
+  if (replyData.method !== "REPLY" || !replyData.description) {
     return console.log("Ignoring invalid ICS");
-  }
-
-  // Extract data from ICS description URL
-  let url;
-  let qs;
-  try {
-    url = new URL(icsData.description.split(descriptionText).pop().trim());
-    qs = Object.fromEntries(url.searchParams.entries());
-  } catch (error) {
-    return console.error("Error parsing description URL:", error);
   }
 
   // Prepare new ICS
   // Calendar reply formats aren't always compatible, so we create
   // a new update. Assumes that only a single attendee is included.
+
+  // Extract data from ICS description URL
+  let updateData;
+  try {
+    const url = updateData.description.split(descriptionText).pop().trim();
+    updateData = urlToEvent(url);
+  } catch (error) {
+    return console.error("Error parsing description URL:", error);
+  }
+
+  // Update reply status
   let replyStatus;
   let replyEmail;
   try {
-    replyStatus = icsData.attendee.params.PARTSTAT;
-    replyEmail = icsData.attendee.val.split(":")[1];
+    replyStatus = replyData.attendee.params.PARTSTAT;
+    replyEmail = replyData.attendee.val.split(":")[1];
   } catch (error) {
     return console.error("Unable to parse reply status");
   }
-  console.log(replyEmail, replyStatus);
+  updateRsvp(updateData, replyEmail, replyStatus);
 
-  // Construct new ICS
-  const data = createEventData({ url, ...qs });
-  const replying = data.attendees.find(
-    (attendee) => attendee.email === replyEmail,
-  );
-  replying.partstat = replyStatus;
-  console.log(data);
-
-  const icsUpdate = ics.createEvent(data);
-  if (icsUpdate.error) {
-    return console.error("Unable to create updated ICS:", icsUpdate.error);
-  }
+  console.log(updateData);
 
   // Forward ICS to non-sender attendee
   // TODO Handle declines
+  const emails = updateData.attendees.map((attendee) => attendee.email);
+  const attachments = createFiles(updateData);
   await sendEmails({
-    emails: data.attendees.map((a) => a.email),
+    emails,
+    attachments,
     subject: "Next call confirmed",
     body: "Congratulations, sir. That's most excellent news.",
-    ics: icsUpdate.value,
   });
 }
 

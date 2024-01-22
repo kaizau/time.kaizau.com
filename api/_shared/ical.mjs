@@ -1,6 +1,6 @@
 import { v4 as uuidv4 } from "uuid";
 import rrule from "rrule";
-const { RRule } = rrule; // Workaround rrule CJS export
+import ics from "ics";
 import {
   servicePath,
   organizerName,
@@ -8,6 +8,7 @@ import {
   descriptionText,
 } from "./strings.mjs";
 
+const { RRule } = rrule; // Workaround rrule CJS export
 const dayOfWeek = ["SU", "MO", "TU", "WE", "TH", "FR", "SA"];
 const statuses = {
   0: "NEEDS-ACTION",
@@ -16,15 +17,16 @@ const statuses = {
   3: "ACCEPTED",
 };
 
-export function createEventData({
-  url,
-  uid,
-  title,
-  ts,
-  interval,
-  guests,
-  rsvp,
-}) {
+export function urlToEvent(urlStr) {
+  const url = new URL(urlStr);
+  const data = Object.fromEntries(url.searchParams.entries());
+  data.interval = parseInt(data.interval, 10);
+  data.guests = data.guests.split(",").map((email) => email.trim());
+  data.rsvp = data.rsvp.split(",").map((status) => status.trim());
+  return createEvent({ url, ...data });
+}
+
+export function createEvent({ url, uid, title, ts, interval, guests, rsvp }) {
   const data = {};
   const baseUid = uid || uuidv4();
 
@@ -39,13 +41,12 @@ export function createEventData({
   // Attendees and RSVP
   const rsvpState = rsvp.map((reply) => statuses[reply]);
   data.attendees = guests.map((attendee, index) => {
-    const partstat = rsvpState[index] || "NEEDS-ACTION";
     return {
       name: attendee,
       email: attendee,
       cutype: "INDIVIDUAL",
       role: "REQ-PARTICIPANT",
-      partstat,
+      partstat: rsvpState[index],
       rsvp: true,
     };
   });
@@ -74,8 +75,39 @@ export function createEventData({
     ts,
     interval,
     guests,
+    rsvp,
   };
   data.description = `${descriptionText}${url.origin}/${servicePath}?${new URLSearchParams(next).toString()}`;
 
   return data;
+}
+
+// Create customized ICS for each attendee (self reference in description link)
+export function createFiles(data) {
+  return data.attendees.map((_, index) => {
+    const { value, error } = ics.createEvent({
+      ...data,
+      description: `${data.description}&self=${index}`,
+    });
+    if (error) throw new Error(error);
+    return value;
+  });
+}
+
+export function updateRsvp(data, email, status) {
+  const index = data.attendees.findIndex(
+    (attendee) => attendee.email === email,
+  );
+  const replying = data.attendees[index];
+  replying.partstat = status;
+
+  // Update description RSVP status
+  const rsvp = data.attendees.map((attendee) =>
+    Object.keys(statuses).find((key) => statuses[key] === attendee.partstat),
+  );
+  const rsvpStr = rsvp.join(",");
+  const [description, urlStr] = data.description.split(descriptionText);
+  const url = new URL(urlStr.trim());
+  url.searchParams.set("rspv", rsvpStr);
+  data.description = `${description}${descriptionText}${url.toString()}`;
 }

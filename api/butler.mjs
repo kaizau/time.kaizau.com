@@ -2,8 +2,7 @@
 // - Creates an iCal event with a self-editing link
 // - Sends the event to attendees by email
 
-import ics from "ics";
-import { createEventData } from "./_shared/ical.mjs";
+import { createEvent, createFiles } from "./_shared/ical.mjs";
 import { sendEmails } from "./_shared/sendgrid.mjs";
 
 export default async (req /* , ctx */) => {
@@ -17,27 +16,24 @@ export default async (req /* , ctx */) => {
   }
 
   const url = new URL(req.url);
-  const data = createEventData({ url, ...body });
+  const icsData = createEvent({ url, ...body });
+  const emails = icsData.attendees.map((attendee) => attendee.email);
+  const attachments = createFiles(icsData);
 
-  // TODO add "&self=" for each attendee
-  console.log(data);
-  return;
-
-  const event = ics.createEvent(data);
-  if (event.error) {
-    console.error(event.error);
-    return new Response("Error creating iCal data", { status: 500 });
+  try {
+    await sendEmails({
+      emails,
+      attachments,
+      subject: "New call time proposed",
+      body: "Sir, your serendipity is served.",
+    });
+  } catch (error) {
+    console.error("Error sending emails:", error);
+    return new Response("Error", { status: 500 });
   }
 
-  await sendEmails({
-    emails: data.attendees.map((attendee) => attendee.email),
-    subject: "New call time proposed",
-    body: "Sir, your serendipity is served.",
-    ics: event.value,
-  });
-
   // Respond with UID (without suffix)
-  return new Response(JSON.stringify({ uid: data.uid.split("@")[0] }), {
+  return new Response(JSON.stringify({ uid: icsData.uid.split("@")[0] }), {
     headers: { "Content-Type": "application/json" },
   });
 };
