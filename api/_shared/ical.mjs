@@ -110,5 +110,6 @@ export function updateRsvp(data, email, status) {
   const [description, urlStr] = data.description.split(descriptionText);
   const url = new URL(urlStr.trim());
   url.searchParams.set("rspv", rsvpStr);
+  console.log(rsvpStr);
   data.description = `${description}${descriptionText}${url.toString()}`;
 }
