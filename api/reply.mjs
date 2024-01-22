@@ -64,7 +64,7 @@ async function forwardReplyToAttendees(req) {
   // Extract data from ICS description URL
   let updateData;
   try {
-    const url = updateData.description.split(descriptionText).pop().trim();
+    const url = replyData.description.split(descriptionText).pop().trim();
     updateData = urlToEvent(url);
   } catch (error) {
     return console.error("Error parsing description URL:", error);
