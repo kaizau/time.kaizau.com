@@ -57,10 +57,6 @@ async function forwardReplyToAttendees(req) {
     return console.log("Ignoring invalid ICS");
   }
 
-  // Prepare new ICS
-  // Calendar reply formats aren't always compatible, so we create
-  // a new update. Assumes that only a single attendee is included.
-
   // Extract data from ICS description URL
   let updateData;
   try {
@@ -70,7 +66,11 @@ async function forwardReplyToAttendees(req) {
     return console.error("Error parsing description URL:", error);
   }
 
-  // Update reply status
+  // Valid reply email determined at this point
+  console.log("Inbound reply:", fields);
+  console.log("Reply ICS:", replyData);
+
+  // Apply reply to attendee update
   let replyStatus;
   let replyEmail;
   try {
@@ -103,6 +103,8 @@ async function forwardReplyToAttendees(req) {
   } else {
     console.log("RSVP status updated");
   }
+
+  console.log("Update ICS:", updateData);
 
   // Forward ICS to non-sender attendee
   const emails = updateData.attendees.map((attendee) => attendee.email);
