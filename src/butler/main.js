@@ -57,11 +57,13 @@ function urlToForm(url) {
   data.time = time;
 
   // Unpack guests, self
-  data.guests = data.guests.split(",");
-  const selfIndex = parseInt(data.self, 10);
-  data.self = data.guests[selfIndex];
-  data.guests.splice(selfIndex, 1);
-  data.guests = data.guests.join(", ");
+  if (data.guests && data.self) {
+    data.guests = data.guests.split(",");
+    const selfIndex = parseInt(data.self, 10);
+    data.self = data.guests[selfIndex];
+    data.guests.splice(selfIndex, 1);
+    data.guests = data.guests.join(", ");
+  }
 
   return data;
 }
