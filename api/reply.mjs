@@ -94,11 +94,14 @@ async function forwardReplyToAttendees(req) {
     updateData.status = "CANCELLED";
     subject = "Next call cancelled";
     body = "Got ahead and schedule another one.";
-  }
-  if (allAccepted) {
+    console.log("All attendees declined");
+  } else if (allAccepted) {
     updateData.status = "CONFIRMED";
     subject = "Next call confirmed";
     body = "Congratulations, sir. That's most excellent news.";
+    console.log("All attendees confirmed");
+  } else {
+    console.log("RSVP status updated");
   }
 
   // Forward ICS to non-sender attendee
