@@ -109,8 +109,6 @@ export function updateRsvp(data, email, status) {
   const rsvpStr = rsvp.join(",");
   const [description, urlStr] = data.description.split(descriptionText);
   const url = new URL(urlStr.trim());
-  url.searchParams.delete("rspv");
-  url.searchParams.set("rspv", rsvpStr);
-  console.log(rsvpStr);
+  url.searchParams.set("rsvp", rsvpStr);
   data.description = `${description}${descriptionText}${url.toString()}`;
 }
