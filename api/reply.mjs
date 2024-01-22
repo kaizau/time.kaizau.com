@@ -81,10 +81,15 @@ async function forwardReplyToAttendees(req) {
   }
   updateRsvp(updateData, replyEmail, replyStatus);
 
-  console.log(updateData);
+  // Don't forward if everyone has declined
+  const allDeclined = updateData.attendees.every(
+    (attendee) => attendee.partstat === "DECLINED",
+  );
+  if (allDeclined) {
+    return console.log("Everyone has declined. No action required.");
+  }
 
   // Forward ICS to non-sender attendee
-  // TODO Handle declines
   const emails = updateData.attendees.map((attendee) => attendee.email);
   const attachments = createFiles(updateData);
   await sendEmails({
