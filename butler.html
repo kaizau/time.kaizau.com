@@ -9,78 +9,94 @@
   <body>
     <div class="flex justify-center items-center min-h-screen bg-gray-100">
       <div
-        class="max-w-lg w-full bg-white rounded-xl shadow-md transition-spacing m-3 p-6 sm:p-10"
+        class="max-w-lg w-full bg-white rounded-lg shadow-lg transition-spacing m-4 p-8"
       >
-        <div class="mb-6">
-          <div class="text-6xl mb-3">️️🎩</div>
-          <div class="text-2xl">
+        <div class="mb-8 text-center">
+          <div class="text-7xl mb-4">️️🎩</div>
+          <h1 class="text-3xl font-semibold">
             Recurring calendar invites that everyone can edit
-          </div>
+          </h1>
         </div>
 
         <form>
-          <div class="mb-4">
-            <label for="title" class="text-gray-800">Event Title:</label>
+          <div class="mb-6">
+            <label for="title" class="block text-lg font-medium text-gray-700"
+              >Event Title:</label
+            >
             <input
               type="text"
               id="title"
               name="title"
-              class="block w-full p-2 mt-1 border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
+              class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md text-base shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
               required
             />
           </div>
 
-          <div class="mb-4">
-            <label for="self" class="text-gray-800">Your Email:</label>
+          <div class="mb-6">
+            <label for="self" class="block text-lg font-medium text-gray-700"
+              >Your Email:</label
+            >
             <input
               type="email"
               id="self"
               name="self"
-              class="block w-full p-2 mt-1 border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
+              class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md text-base shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
               required
             />
           </div>
 
-          <div class="mb-4">
-            <label for="guests" class="text-gray-800">Invited Email(s):</label>
+          <div class="mb-6">
+            <label for="guests" class="block text-lg font-medium text-gray-700"
+              >Invited Email(s):</label
+            >
             <input
               type="email"
               id="guests"
               name="guests"
-              class="block w-full p-2 mt-1 border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
+              class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md text-base shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
               multiple
             />
           </div>
 
-          <div class="mb-4">
-            <label for="date" class="text-gray-800">Next Date:</label>
-            <input
-              type="date"
-              id="date"
-              name="date"
-              class="block w-full p-2 mt-1 border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
-              required
-            />
+          <div class="mb-6 flex gap-4">
+            <div class="w-1/2">
+              <label for="date" class="block text-lg font-medium text-gray-700"
+                >Next Date:</label
+              >
+              <input
+                type="date"
+                id="date"
+                name="date"
+                class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md text-base shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                required
+              />
+            </div>
+
+            <div class="w-1/2">
+              <label for="time" class="block text-lg font-medium text-gray-700"
+                >Time:</label
+              >
+              <input
+                type="time"
+                id="time"
+                name="time"
+                pattern="[0-9]{2}:[0-9]{2}"
+                class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md text-base shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                required
+              />
+            </div>
           </div>
 
-          <div class="mb-4">
-            <label for="time" class="text-gray-800">Time:</label>
-            <input
-              type="time"
-              id="time"
-              name="time"
-              pattern="[0-9]{2}:[0-9]{2}"
-              class="block w-full p-2 mt-1 border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
-              required
-            />
-          </div>
-
-          <div class="mb-4">
-            <label for="interval" class="text-gray-800">Repeat:</label>
+          <div class="mb-6">
+            <label
+              for="interval"
+              class="block text-lg font-medium text-gray-700"
+              >Repeat:</label
+            >
             <select
               id="interval"
               name="interval"
-              class="block w-full p-2 mt-1 border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
+              class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md text-base shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
               required
             >
               <option value="4">Every 4 weeks</option>
@@ -95,7 +111,7 @@
             <input
               type="submit"
               value="Make it so!"
-              class="py-2 px-4 font-semibold text-white bg-indigo-500 rounded-md cursor-pointer hover:bg-indigo-600"
+              class="w-full py-3 px-6 font-semibold text-white bg-indigo-600 rounded-md cursor-pointer hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-opacity-50"
             />
           </div>
         </form>
