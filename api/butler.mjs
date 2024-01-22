@@ -7,14 +7,21 @@ import { createEventData } from "./_shared/ical.mjs";
 import { sendEmails } from "./_shared/sendgrid.mjs";
 
 export default async (req /* , ctx */) => {
-  const url = new URL(req.url);
-  const qs = Object.fromEntries(url.searchParams.entries());
-
-  if (!qs.title || !qs.ts || !qs.interval || !qs.attendees) {
-    return Response("Missing required parameters", { status: 400 });
+  if (req.method !== "POST") {
+    return new Response("Method not allowed", { status: 405 });
   }
 
-  const data = createEventData({ url, ...qs });
+  const body = await req.json();
+  if (!body.title || !body.ts || !body.interval || !body.guests) {
+    return new Response("Missing required parameters", { status: 400 });
+  }
+
+  const url = new URL(req.url);
+  const data = createEventData({ url, ...body });
+
+  // TODO add "&self=" for each attendee
+  console.log(data);
+  return;
 
   const event = ics.createEvent(data);
   if (event.error) {

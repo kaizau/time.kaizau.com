@@ -1,57 +1,12 @@
-const searchParams = new URLSearchParams(window.location.search);
-const qs = Object.fromEntries(searchParams.entries());
+init();
 
-// Deserialize UTC timestamp to local time
-const { date, time } = getDateTime(qs.ts);
-qs.date = date;
-qs.time = time;
+function init() {
+  const $form = document.querySelector("form");
 
-const $form = document.querySelector("form");
-prefill(qs);
-
-$form.addEventListener("submit", (e) => {
-  e.preventDefault();
-  const entries = new FormData($form).entries();
-  const data = Object.fromEntries(entries);
-
-  // Normalize attendee email spacing
-  data.attendees
-    .split(",")
-    .map((a) => a.trim())
-    .join(", ");
-
-  // Serialize local time to UTC timestamp
-  data.ts = new Date(`${data.date} ${data.time}`).getTime();
-  delete data.date;
-  delete data.time;
-
-  // Delete keys with no value
-  Object.keys(data).forEach((key) => {
-    if (!data[key]) delete data[key];
-  });
-
-  const url = `/api/butler?${new URLSearchParams(data).toString()}`;
-  fetch(url)
-    .then((res) => res.json())
-    .then((res) => {
-      // Update uid
-      data.uid = res.uid;
-      $form.querySelector("[name=uid]").value = data.uid;
-
-      // Update URL
-      const query = new URLSearchParams(data).toString();
-      window.history.pushState({}, "", `?${query}`);
-
-      // TODO Show confirmation
-    })
-    .catch((error) => {
-      console.error(error);
-    });
-});
-
-function prefill(obj) {
-  for (const key in obj) {
-    const value = obj[key];
+  // Prefill form from URL
+  const data = urlToForm(new URL(window.location));
+  for (const key in data) {
+    const value = data[key];
     const $inputs = $form.querySelectorAll(`[name="${key}"]`);
     $inputs.forEach(($input) => {
       if ($input.type === "date") {
@@ -61,9 +16,86 @@ function prefill(obj) {
       }
     });
   }
+
+  bindSubmit($form);
 }
 
-function getDateTime(ts) {
+function bindSubmit($form) {
+  $form.addEventListener("submit", (e) => {
+    e.preventDefault();
+    const data = formToData($form);
+
+    fetch("/api/butler", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(data),
+    })
+      .then((res) => res.json())
+      .then((res) => {
+        // Update uid
+        data.uid = res.uid;
+        $form.querySelector("[name=uid]").value = data.uid;
+
+        // Update URL
+        const query = new URLSearchParams(data).toString();
+        window.history.pushState({}, "", `?${query}`);
+
+        // TODO Show confirmation
+      })
+      .catch((error) => {
+        console.error(error);
+      });
+  });
+}
+
+function urlToForm(url) {
+  const data = Object.fromEntries(url.searchParams.entries());
+
+  // Deserialize UTC timestamp to local time
+  const { date, time } = getLocalDateTime(data.ts);
+  data.date = date;
+  data.time = time;
+
+  // Unpack guests, self
+  data.guests = data.guests.split(",");
+  const selfIndex = parseInt(data.self, 10);
+  data.self = data.guests[selfIndex];
+  data.guests.splice(selfIndex, 1);
+  data.guests = data.guests.join(", ");
+
+  return data;
+}
+
+function formToData($form) {
+  const entries = new FormData($form).entries();
+  const data = Object.fromEntries(entries);
+
+  // Normalize guests
+  data.guests = data.guests.split(",").map((a) => a.trim());
+  data.self = data.self.trim();
+  data.guests.push(data.self);
+  data.guests.sort();
+
+  // Mark requester
+  data.self = data.guests.indexOf(data.self);
+
+  // Mark requester as RSVP'ed
+  // 0: needs action, 1: declined, 2: maybe, 3: accepted
+  data.rsvp = new Array(data.guests.length).fill(0);
+  data.rsvp[data.self] = 3;
+
+  // Serialize local time to UTC timestamp
+  data.ts = new Date(`${data.date} ${data.time}`).getTime();
+  delete data.date;
+  delete data.time;
+
+  // Parse numerical values
+  data.interval = parseInt(data.interval, 10);
+
+  return data;
+}
+
+function getLocalDateTime(ts) {
   let date;
   if (ts) {
     date = new Date(parseInt(ts, 10));

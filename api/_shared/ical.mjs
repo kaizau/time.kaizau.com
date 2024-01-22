@@ -9,6 +9,12 @@ import {
 } from "./strings.mjs";
 
 const dayOfWeek = ["SU", "MO", "TU", "WE", "TH", "FR", "SA"];
+const statuses = {
+  0: "NEEDS-ACTION",
+  1: "DECLINED",
+  2: "TENTATIVE",
+  3: "ACCEPTED",
+};
 
 export function createEventData({
   url,
@@ -16,7 +22,7 @@ export function createEventData({
   title,
   ts,
   interval,
-  attendees,
+  guests,
   rsvp,
 }) {
   const data = {};
@@ -31,8 +37,8 @@ export function createEventData({
   data.organizer = { name: organizerName, email: organizerEmail };
 
   // Attendees and RSVP
-  const rsvpState = rsvp ? rsvp.split(", ") : [];
-  data.attendees = attendees.split(", ").map((attendee, index) => {
+  const rsvpState = rsvp.map((reply) => statuses[reply]);
+  data.attendees = guests.map((attendee, index) => {
     const partstat = rsvpState[index] || "NEEDS-ACTION";
     return {
       name: attendee,
@@ -67,9 +73,8 @@ export function createEventData({
     title,
     ts,
     interval,
-    attendees,
+    guests,
   };
-  if (rsvp) next.rsvp = rsvp;
   data.description = `${descriptionText}${url.origin}/${servicePath}?${new URLSearchParams(next).toString()}`;
 
   return data;
