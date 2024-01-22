@@ -35,6 +35,7 @@ export function createEvent({ url, uid, title, ts, interval, guests, rsvp }) {
   data.uid = `${baseUid}@${data.productId}`;
   data.sequence = Math.round(Date.now() / 1000); // increment every second
   data.method = "REQUEST";
+  data.status = "TENTATIVE";
   data.title = title;
   data.organizer = { name: organizerName, email: organizerEmail };
 

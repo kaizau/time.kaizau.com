@@ -81,23 +81,30 @@ async function forwardReplyToAttendees(req) {
   }
   updateRsvp(updateData, replyEmail, replyStatus);
 
-  // Don't forward if everyone has declined
+  // Handle status based on attendees
+  let subject = "Next call updated";
+  let body = "One step closer to greatness.";
   const allDeclined = updateData.attendees.every(
     (attendee) => attendee.partstat === "DECLINED",
   );
+  const allAccepted = updateData.attendees.every(
+    (attendee) => attendee.partstat === "ACCEPTED",
+  );
   if (allDeclined) {
-    return console.log("Everyone has declined. No action required.");
+    updateData.status = "CANCELLED";
+    subject = "Next call cancelled";
+    body = "Got ahead and schedule another one.";
+  }
+  if (allAccepted) {
+    updateData.status = "CONFIRMED";
+    subject = "Next call confirmed";
+    body = "Congratulations, sir. That's most excellent news.";
   }
 
   // Forward ICS to non-sender attendee
   const emails = updateData.attendees.map((attendee) => attendee.email);
   const attachments = createFiles(updateData);
-  await sendEmails({
-    emails,
-    attachments,
-    subject: "Next call confirmed",
-    body: "Congratulations, sir. That's most excellent news.",
-  });
+  await sendEmails({ emails, attachments, subject, body });
 }
 
 async function parseForm(req) {
