@@ -79,9 +79,7 @@ async function forwardReplyToAttendees(req) {
   } catch (error) {
     return console.error("Unable to parse reply status");
   }
-  console.log(updateData.description);
   updateRsvp(updateData, replyEmail, replyStatus);
-  console.log(updateData.description);
 
   // Handle status based on attendees
   let subject = "Next call updated";
