@@ -21,28 +21,17 @@
         <form>
           <fieldset>
             <div class="mb-6">
-              <label for="title" class="block text-lg font-medium text-gray-700"
-                >Event Title:</label
-              >
-              <input
-                type="text"
-                id="title"
-                name="title"
-                class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md text-base shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:valid:border-green-500 focus:invalid:border-red-500"
-                required
-              />
-            </div>
-
-            <div class="mb-6">
               <label for="self" class="block text-lg font-medium text-gray-700"
                 >Your Email:</label
               >
               <input
-                type="email"
+                type="text"
                 id="self"
                 name="self"
                 class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md text-base shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:valid:border-green-500 focus:invalid:border-red-500"
                 required
+                pattern="(\w+\s*<\S+@\S+\.\S+>|\S+@\S+\.\S+)"
+                placeholder="Name <name@example.com>"
               />
             </div>
 
@@ -53,12 +42,14 @@
                 >Invited Email(s):</label
               >
               <input
-                type="email"
+                type="text"
                 id="guests"
                 name="guests"
                 class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md text-base shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:valid:border-green-500 focus:invalid:border-red-500"
                 required
                 multiple
+                pattern="((\w+\s*<\S+@\S+\.\S+>,?\s*)*|(\S+@\S+\.\S+(,?\s*))*)+"
+                placeholder="Guest <guest@example.com>, ..."
               />
             </div>
 
