@@ -22,13 +22,14 @@
           <fieldset>
             <div class="mb-6">
               <label for="title" class="block text-lg font-medium text-gray-700"
-                >Event Title:</label
+                >Title:</label
               >
               <input
                 type="text"
                 id="title"
                 name="title"
                 class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md text-base shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:valid:border-green-500 focus:invalid:border-red-500"
+                placeholder="The Breakfast Club"
                 required
               />
             </div>
@@ -38,10 +39,12 @@
                 >Your Email:</label
               >
               <input
-                type="email"
+                type="text"
                 id="self"
                 name="self"
                 class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md text-base shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:valid:border-green-500 focus:invalid:border-red-500"
+                placeholder="name@example.com"
+                pattern="\S+@\S+\.\S+"
                 required
               />
             </div>
@@ -53,10 +56,12 @@
                 >Invited Email(s):</label
               >
               <input
-                type="email"
+                type="text"
                 id="guests"
                 name="guests"
                 class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md text-base shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:valid:border-green-500 focus:invalid:border-red-500"
+                placeholder="guest@example.com, invited@example.com"
+                pattern="(\S+@\S+\.\S+(,?\S*))+"
                 required
                 multiple
               />
