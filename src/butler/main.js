@@ -1,5 +1,3 @@
-import { da } from "date-fns/locale";
-
 init();
 
 function init() {
