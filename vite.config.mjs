@@ -7,8 +7,8 @@ export default defineConfig({
   build: {
     rollupOptions: {
       input: {
-        index: "index.html",
-        relay: "relay/index.html",
+        index: "src/index.html",
+        relay: "src/relay/index.html",
       },
     },
   },
