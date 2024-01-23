@@ -110,7 +110,7 @@ async function forwardReplyToAttendees(req) {
   const attachments = createFiles(updateData);
   const descriptionBase = updateData.description.split(descriptionText)[1];
   const body = updateData.attendees.map((_, index) => {
-    return `${descriptionBase}&self=${index}`;
+    return `Reschedule at any time: ${descriptionBase}&self=${index}`;
   });
   await sendEmails({
     emails,
