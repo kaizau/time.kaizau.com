@@ -3,11 +3,12 @@ import preact from "@preact/preset-vite";
 
 // https://vitejs.dev/config/
 export default defineConfig({
+  root: "./src",
   build: {
     rollupOptions: {
       input: {
         index: "index.html",
-        butler: "butler.html",
+        relay: "relay/index.html",
       },
     },
   },

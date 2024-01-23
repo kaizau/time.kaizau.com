@@ -2,9 +2,15 @@ import { Readable } from "stream";
 import busboy from "busboy";
 import ical from "node-ical";
 
-import { descriptionText, organizerEmail } from "./_shared/strings.mjs";
+import {
+  servicePath,
+  descriptionText,
+  organizerEmail,
+} from "./_shared/strings.mjs";
 import { sendEmails } from "./_shared/sendgrid.mjs";
 import { urlToEvent, createFiles, updateRsvp } from "./_shared/ical.mjs";
+
+export const config = { path: `${servicePath}/reply` };
 
 export default async (req /* , ctx */) => {
   if (
@@ -82,8 +88,7 @@ async function forwardReplyToAttendees(req) {
   updateRsvp(updateData, replyEmail, replyStatus);
 
   // Handle status based on attendees
-  let subject = "Next call updated";
-  let body = "One step closer to greatness.";
+  let subject;
   const allDeclined = updateData.attendees.every(
     (attendee) => attendee.partstat === "DECLINED",
   );
@@ -93,12 +98,12 @@ async function forwardReplyToAttendees(req) {
   if (allDeclined) {
     updateData.method = "CANCEL";
     updateData.status = "CANCELLED";
-    subject = "Next call cancelled";
-    body = "Got ahead and schedule another one.";
+    subject = "Call cancelled";
   } else if (allAccepted) {
     updateData.status = "CONFIRMED";
-    subject = "Next call confirmed";
-    body = "Congratulations, sir. That's most excellent news.";
+    subject = "Call confirmed";
+  } else {
+    subject = "Call updated";
   }
 
   console.log("Update ICS:", updateData);
@@ -107,6 +112,10 @@ async function forwardReplyToAttendees(req) {
   // Forward ICS to non-sender attendee
   const emails = updateData.attendees.map((attendee) => attendee.email);
   const attachments = createFiles(updateData);
+  const descriptionBase = updateData.description.split(descriptionText)[1];
+  const body = updateData.attendees.map((_, index) => {
+    return `${descriptionBase}&self=${index}`;
+  });
   await sendEmails({
     emails,
     attachments,

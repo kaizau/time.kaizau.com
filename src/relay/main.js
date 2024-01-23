@@ -48,7 +48,7 @@ function bindSubmit($form) {
     // Disable after we have the data
     $form.querySelector("fieldset").disabled = true;
 
-    fetch("/api/butler", {
+    fetch("./invite", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(data),

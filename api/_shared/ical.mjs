@@ -3,6 +3,7 @@ import rrule from "rrule";
 import ics from "ics";
 import {
   servicePath,
+  serviceOrigin,
   organizerName,
   organizerEmail,
   descriptionText,
@@ -23,10 +24,10 @@ export function urlToEvent(urlStr) {
   data.interval = parseInt(data.interval, 10);
   data.guests = data.guests.split(",").map((email) => email.trim());
   data.rsvp = data.rsvp.split(",").map((status) => status.trim());
-  return createEvent({ url, ...data });
+  return createEvent(data);
 }
 
-export function createEvent({ url, uid, title, ts, interval, guests, rsvp }) {
+export function createEvent({ uid, title, ts, interval, guests, rsvp }) {
   const data = {};
   const baseUid = uid || uuidv4();
 
@@ -78,7 +79,7 @@ export function createEvent({ url, uid, title, ts, interval, guests, rsvp }) {
     guests,
     rsvp,
   };
-  data.description = `${descriptionText}${url.origin}/${servicePath}?${new URLSearchParams(next).toString()}`;
+  data.description = `${descriptionText}${serviceOrigin}${servicePath}?${new URLSearchParams(next).toString()}`;
 
   return data;
 }

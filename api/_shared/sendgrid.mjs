@@ -5,18 +5,23 @@ sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
 export function sendEmails({ emails, attachments, subject, body, method }) {
   const icsMethod = method || "REQUEST";
+
   const messages = emails.map((email, index) => {
+    const emailBody = Array.isArray(body) ? body[index] : body;
+    const attachment = Array.isArray(attachments)
+      ? attachments[index]
+      : attachment;
     return {
       from: { name: organizerName, email: organizerEmail },
       to: email,
-      subject: `🎩 ${subject}`,
-      text: body,
-      html: `<p>${body}</p>`,
+      subject: `⏩ ${subject}`,
+      text: emailBody,
+      html: `<p>${emailBody}</p>`,
       attachments: [
         {
           type: `text/calendar; method=${icsMethod}`,
           filename: "serendipity.ics",
-          content: Buffer.from(attachments[index]).toString("base64"),
+          content: Buffer.from(attachment).toString("base64"),
           disposition: "attachment",
         },
       ],

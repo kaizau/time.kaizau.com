@@ -4,6 +4,9 @@
 
 import { createEvent, createFiles } from "./_shared/ical.mjs";
 import { sendEmails } from "./_shared/sendgrid.mjs";
+import { servicePath } from "./_shared/strings.mjs";
+
+export const config = { path: `${servicePath}/invite` };
 
 export default async (req /* , ctx */) => {
   if (req.method !== "POST") {
@@ -15,8 +18,7 @@ export default async (req /* , ctx */) => {
     return new Response("Missing required parameters", { status: 400 });
   }
 
-  const url = new URL(req.url);
-  const icsData = createEvent({ url, ...body });
+  const icsData = createEvent(body);
   const emails = icsData.attendees.map((attendee) => attendee.email);
   const attachments = createFiles(icsData);
 
@@ -25,7 +27,6 @@ export default async (req /* , ctx */) => {
       emails,
       attachments,
       subject: "New call time proposed",
-      body: "Sir, your serendipity is served.",
     });
   } catch (error) {
     console.error("Error sending emails:", error);
