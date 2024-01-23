@@ -25,7 +25,7 @@ export default async (req /* , ctx */) => {
     await sendEmails({
       emails,
       attachments,
-      subject: "New call time proposed",
+      subject: "⏩ New call time proposed",
     });
   } catch (error) {
     console.error("Error sending emails:", error);

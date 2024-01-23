@@ -14,7 +14,7 @@ export function sendEmails({ emails, attachments, subject, body, method }) {
     return {
       from: { name: organizerName, email: organizerEmail },
       to: email,
-      subject: `⏩ ${subject}`,
+      subject,
       text: emailBody,
       html: `<p>${emailBody}</p>`,
       attachments: [

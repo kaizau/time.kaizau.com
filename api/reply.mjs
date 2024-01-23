@@ -94,12 +94,12 @@ async function forwardReplyToAttendees(req) {
   if (allDeclined) {
     updateData.method = "CANCEL";
     updateData.status = "CANCELLED";
-    subject = "Call cancelled";
+    subject = "🛑 Call cancelled";
   } else if (allAccepted) {
     updateData.status = "CONFIRMED";
-    subject = "Call confirmed";
+    subject = "✅ Call confirmed";
   } else {
-    subject = "Call updated";
+    subject = "⏩ Call updated";
   }
 
   console.log("Update ICS:", updateData);
