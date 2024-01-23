@@ -4,9 +4,8 @@
 
 import { createEvent, createFiles } from "./_shared/ical.mjs";
 import { sendEmails } from "./_shared/sendgrid.mjs";
-import { servicePath } from "./_shared/strings.mjs";
 
-export const config = { path: `${servicePath}/invite` };
+export const config = { path: "/relay/invite" };
 
 export default async (req /* , ctx */) => {
   if (req.method !== "POST") {

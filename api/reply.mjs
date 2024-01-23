@@ -2,15 +2,11 @@ import { Readable } from "stream";
 import busboy from "busboy";
 import ical from "node-ical";
 
-import {
-  servicePath,
-  descriptionText,
-  organizerEmail,
-} from "./_shared/strings.mjs";
+import { descriptionText, organizerEmail } from "./_shared/strings.mjs";
 import { sendEmails } from "./_shared/sendgrid.mjs";
 import { urlToEvent, createFiles, updateRsvp } from "./_shared/ical.mjs";
 
-export const config = { path: `${servicePath}/reply` };
+export const config = { path: "/relay/reply" };
 
 export default async (req /* , ctx */) => {
   if (
