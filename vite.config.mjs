@@ -5,10 +5,11 @@ import preact from "@preact/preset-vite";
 export default defineConfig({
   root: "./src",
   build: {
+    outDir: "../dist",
     rollupOptions: {
       input: {
-        index: "src/index.html",
-        relay: "src/relay/index.html",
+        index: "./src/index.html",
+        relay: "./src/relay/index.html",
       },
     },
   },
