@@ -1,3 +1,5 @@
+import { da } from "date-fns/locale";
+
 init();
 
 function init() {
@@ -17,7 +19,27 @@ function init() {
     });
   }
 
+  updateTitle($form);
   bindSubmit($form);
+}
+
+function updateTitle($form) {
+  $form.addEventListener("change", (e) => {
+    if (e.target.name === "title") return;
+
+    const data = formToData($form);
+    if (!data.title) {
+      const selfValid = $form.querySelector("[name='self']").checkValidity();
+      const guestValid = $form.querySelector("[name='guests']").checkValidity();
+      if (selfValid && guestValid) {
+        const guests = data.guests.map((email) => {
+          const namePart = email.split("@")[0];
+          return namePart[0].toUpperCase() + namePart.slice(1);
+        });
+        $form.querySelector("[name='title']").value = guests.join(" / ");
+      }
+    }
+  });
 }
 
 function bindSubmit($form) {
