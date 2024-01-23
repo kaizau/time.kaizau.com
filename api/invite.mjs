@@ -25,7 +25,7 @@ export default async (req /* , ctx */) => {
     await sendEmails({
       emails,
       attachments,
-      subject: `⏩ New call time proposed: ${icsData.title}`,
+      subject: `⏩ New time proposed: ${icsData.title}`,
       body: "Guilt-free rescheduling link enclosed.",
     });
   } catch (error) {
