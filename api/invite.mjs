@@ -26,6 +26,7 @@ export default async (req /* , ctx */) => {
       emails,
       attachments,
       subject: "⏩ New call time proposed",
+      body: "Guilt-free rescheduling link enclosed.",
     });
   } catch (error) {
     console.error("Error sending emails:", error);
