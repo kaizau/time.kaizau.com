@@ -9,18 +9,19 @@ import { urlToEvent, createFiles, updateRsvp } from "./_shared/ical.mjs";
 export const config = { path: "/relay/reply" };
 
 export default async (req /* , ctx */) => {
-  if (
-    req.method === "POST" &&
-    req.headers.get("content-type").includes("multipart/form-data")
-  ) {
-    await forwardReplyToAttendees(req);
-  } else {
-    console.log(
-      "Ignoring invalid request:",
-      req.method,
-      req.headers.get("content-type"),
-    );
-  }
+  // if (
+  //   req.method === "POST" &&
+  //   req.headers.get("content-type").includes("multipart/form-data")
+  // ) {
+  //   await forwardReplyToAttendees(req);
+  // } else {
+  //   console.log(
+  //     "Ignoring invalid request:",
+  //     req.method,
+  //     req.headers.get("content-type"),
+  //   );
+  // }
+  console.log("Disabled, ignoring request");
   return new Response("🎩");
 };
 
